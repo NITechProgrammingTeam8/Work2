@@ -100,4 +100,14 @@ public class TextDAO{
 
 		}
 	}
+
+	// テキストファイルを読み込んでデータベースを作成するメソッド
+	public void readTextFile() throws FileNotFoundException {
+
+	}
+
+	// データベースの内容をテキストファイルに書き込むメソッド
+	public void writeTextFile() throws FileNotFoundException {
+
+	}
 }
