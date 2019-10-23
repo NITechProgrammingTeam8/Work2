@@ -2,15 +2,15 @@
 
 class Dao {
 
-    public void addData(String newData) {
+    public void addData(String newData) throws Exception  {
 
     }
 
-    public List<String> SearchData(String targetData) {
+    public List<String> SearchData(String targetData) throws Exception {
 
     }
 
-    public void deleteData(String targetData) {
+    public void deleteData(String targetData) throws Exception {
 
     }
 }
