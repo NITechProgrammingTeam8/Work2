@@ -35,7 +35,6 @@ class Presenter {
         } catch(FileNotFoundException e) {
             view.showError(e.toString());
         }
-        
     }
 
     // 新規データをデータベースに書き込むように指示する
@@ -48,6 +47,8 @@ class Presenter {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
             view.showError(e.toString());
+        } finally {
+            dao.conn.close();
         }
     }
 
@@ -66,6 +67,8 @@ class Presenter {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
             view.showError(e.toString());
+        } finally {
+            dao.conn.close();
         }
     }
 
@@ -79,6 +82,8 @@ class Presenter {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
             view.showError(e.toString());
+        } finally {
+            dao.conn.close();
         }
     }
 }
