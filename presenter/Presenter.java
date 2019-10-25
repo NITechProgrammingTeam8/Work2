@@ -6,6 +6,7 @@ class Presenter {
 
     private Dao dao = new Dao();
     private TextDAO textDao = new TextDAO();
+    private Unify unify = new Unify();
 
     private ViewInterface view;
 
@@ -35,7 +36,6 @@ class Presenter {
         } catch(FileNotFoundException e) {
             view.showError(e.toString());
         }
-        
     }
 
     // 新規データをデータベースに書き込むように指示する
@@ -48,15 +48,51 @@ class Presenter {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
             view.showError(e.toString());
+        } finally {
+            dao.conn.close();
         }
     }
 
     // 検索データをデータベースから取得するように指示する
     // あおしゅー：データ検索のアクションを受け取ったとき、このメソッドを呼んでください
     public void searchData(String targetData) {
-        List<String> resultList;
+        List<TextModel> resultList;
         try {
-            resultList = dao.SearchData(targetData);
+            resultList = dao.FetchData();
+            // Unifyメソッドをここで呼ぶ
+            if(resultList.length() == 0) {
+                view.showNoData();
+            } else {
+                view.showSearchResult(resultList);
+            }
+        } catch(SQLException e) {
+            view.showError(e.toString());
+        } catch(ClassNotFoundException e) {
+            view.showError(e.toString());
+        } finally {
+            dao.conn.close();
+        }
+    }
+
+    // 削除データをデータベースに削除するように支持する
+    // あおしゅー：データ削除のアクションを受け取ったとき、このメソッドを呼んでください
+    public void deleteData(int targetData) {
+        try {
+            dao.deleteData(targetData);
+            view.successDeleteData();
+        } catch(SQLException e) {
+            view.showError(e.toString());
+        } catch(ClassNotFoundException e) {
+            view.showError(e.toString());
+        } finally {
+            dao.conn.close();
+        }
+    }
+
+    public void fetchData() {
+        List<TextModel> resultList;
+        try {
+            resultList = dao.FetchData();
             if(resultList.length() == 0) {
                 view.showNoData();
             } else {
@@ -66,19 +102,8 @@ class Presenter {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
             view.showError(e.toString());
-        }
-    }
-
-    // 削除データをデータベースに削除するように支持する
-    // あおしゅー：データ削除のアクションを受け取ったとき、このメソッドを呼んでください
-    public void deleteData(String targetData) {
-        try {
-            dao.deleteData(targetData);
-            view.successDeleteData();
-        } catch(SQLException e) {
-            view.showError(e.toString());
-        } catch(ClassNotFoundException e) {
-            view.showError(e.toString());
+        } finally {
+            dao.conn.close();
         }
     }
 }
