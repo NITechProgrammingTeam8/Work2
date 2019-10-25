@@ -6,6 +6,7 @@ class Presenter {
 
     private Dao dao = new Dao();
     private TextDAO textDao = new TextDAO();
+    private Unify unify = new Unify();
 
     private ViewInterface view;
 
@@ -58,6 +59,7 @@ class Presenter {
         List<TextModel> resultList;
         try {
             resultList = dao.FetchData();
+            // Unifyメソッドをここで呼ぶ
             if(resultList.length() == 0) {
                 view.showNoData();
             } else {
