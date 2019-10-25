@@ -2,8 +2,9 @@ interface ViewInterface {
     void successStart();
     void successFinish();
     void successAddData();
-    void showResultList(List<String> resultList);
+    void showSearchResult();
     void successDeleteData();
+    void showResultList(List<TextModel> resultList);
     void showError(String errorText);
     void showNoData();
 }

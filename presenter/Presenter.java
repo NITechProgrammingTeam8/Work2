@@ -55,13 +55,13 @@ class Presenter {
     // 検索データをデータベースから取得するように指示する
     // あおしゅー：データ検索のアクションを受け取ったとき、このメソッドを呼んでください
     public void searchData(String targetData) {
-        List<String> resultList;
+        List<TextModel> resultList;
         try {
-            resultList = dao.SearchData(targetData);
+            resultList = dao.FetchData();
             if(resultList.length() == 0) {
                 view.showNoData();
             } else {
-                view.showResultList(resultList);
+                view.showSearchResult(resultList);
             }
         } catch(SQLException e) {
             view.showError(e.toString());
@@ -74,10 +74,28 @@ class Presenter {
 
     // 削除データをデータベースに削除するように支持する
     // あおしゅー：データ削除のアクションを受け取ったとき、このメソッドを呼んでください
-    public void deleteData(String targetData) {
+    public void deleteData(int targetData) {
         try {
             dao.deleteData(targetData);
             view.successDeleteData();
+        } catch(SQLException e) {
+            view.showError(e.toString());
+        } catch(ClassNotFoundException e) {
+            view.showError(e.toString());
+        } finally {
+            dao.conn.close();
+        }
+    }
+
+    public void fetchData() {
+        List<TextModel> resultList;
+        try {
+            resultList = dao.FetchData();
+            if(resultList.length() == 0) {
+                view.showNoData();
+            } else {
+                view.showResultList(resultList);
+            }
         } catch(SQLException e) {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
