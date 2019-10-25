@@ -7,6 +7,9 @@ class Dao {
     private static final String loadClassName = "org.sqlite.JDBC";
     private static final String connDB = "jdbc:sqlite:data.db";
 
+    private static final String VALUES_STATEMENT = "VALUES(?,?)";
+    private static final String INSERT_STATEMENT = "INSERT INTO";
+
     Connection conn = null;
 
     public void addData(String newData) throws Exception  {
