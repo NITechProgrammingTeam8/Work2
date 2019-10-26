@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.util.List;
 
 // DaoやTextDAOなどのModelクラスとViewクラスの接合部
 
@@ -58,8 +59,13 @@ class Presenter {
     public void searchData(String targetData) {
         List<TextModel> resultList;
         try {
-            resultList = dao.FetchData();
+            searchList = dao.FetchData();
             // Unifyメソッドをここで呼ぶ
+            for(TextModel textModel : searchList) {
+                if(unify.unify(targetData, textModel.getText())) {
+                    resultList.add(textModel);
+                }
+            }
             if(resultList.length() == 0) {
                 view.showNoData();
             } else {

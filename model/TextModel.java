@@ -6,4 +6,8 @@ class TextModel {
         this.uuid = uuid;
         this.text = text;
     }
+
+    public String getText() {
+        return text;
+    }
 }
