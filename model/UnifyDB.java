@@ -62,25 +62,20 @@ public class UnifyDB extends TextDAO{
 
 
 		makeTextDB("data.txt");
-		System.out.println("とりあえずエラーなく終わりました");
-		
-		// 検索
+		//System.out.println("とりあえずエラーなく終わりました");
+
+		// テキストファイルへの書き込み
 
 	}
 
 	public static void makeTextDB(String fileName) {
-		StringTokenizer st;
-		String buffer[];
-		//String conbuffer = "";
-		StringBuffer buf = new StringBuffer();
-		String verb[] = new String[10];
-		int j = 0;
-		int newverb = 1; // 動詞が新出かどうか
-		int count[] = new int[10]; // 各動詞が何回書かれているか
-		int nowverb = -1; // 現在の動詞
+		String empty = ""; // 空行かどうか
 
 		//textファイル処理
 		try {
+
+			// tableの作成【DB】
+			TextDAO.createTab();
 
 			// ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
 			//String fileName = "data.txt"; // ファイル名指定
@@ -92,64 +87,13 @@ public class UnifyDB extends TextDAO{
 			for (String line = in.readLine();line != null; line = in.readLine()) {
 				//System.out.println(line);  // 1行表示
 
-				st = new StringTokenizer(line);
-
-				int length = st.countTokens();
-				buffer = new String[length];
-				for(int i = 0 ; i < length; i++){
-					buffer[i] = st.nextToken();
-					if (i == 1) {
-						for (int k = 0; k < j; k++) {
-							if (buffer[i].equals(verb[k])) {
-								newverb = 0;
-								count[k]++;
-								nowverb = k;
-							}
-						}
-						if (newverb == 1) {
-							// 新しい動詞を発見したとき
-							verb[j] = buffer[i];
-							//System.out.println("見つかった動詞" + buffer[i]);
-							count[j]++;
-							nowverb = j;
-							j++;
-
-							String pro = buffer[i] + "s";
-
-							// tableの作成【DB】
-							TextDAO.createTab(pro);
-						}
-
-					}
-				}
-
-				//System.out.println("length = " + length);
-				if (length > 3) {
-					for(int i = 2; i < length; i++) {
-						buf.append(buffer[i]);
-						if (i != length - 1) {
-							buf.append(" ");
-						}
-					}
-
-					String pro = buffer[1] + "s";
+				if (!line.equals(empty)) {
 					// 更新【DB】
-					TextDAO.insertTextTab(pro, count[nowverb], buffer[0], buf.toString());
-					buf.setLength(0);
-				} else if (nowverb != -1) {
-
-					String pro = buffer[1] + "s";
-					// 更新【DB】
-					TextDAO.insertTextTab(pro, count[nowverb], buffer[0], buffer[2]);
-					
+					TextDAO.insertTextTab(line);
 				}
-
-				// 値の初期化
-				newverb = 1;
-				nowverb = -1;
 
 				//【DB】
-				TextDAO.conCom();
+				TextDAO.conCom(); // 使用方法?
 
 			}
 			in.close();  // ファイルを閉じる
