@@ -7,7 +7,12 @@ class TextModel {
         this.text = text;
     }
 
-    public String getText() {
-        return text;
+    // 表示用追加メソッド
+    public int getUUID() {
+    	return uuid;
+    }
+
+    public String getTEXT() {
+    	return text;
     }
 }

@@ -54,17 +54,33 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 class Unify {
-  public static void main(String arg[]){
-	/* 「?x is a boy」と「?x loves ?y」の両方が与えられたときに，
-	 * (?x, ?y) の全ての可能な変数束縛の集合として,
-	 * {(Taro, Jiro), (Jiro, Hanako)}を返すこと．
-	 */
-	System.out.println((new Unifier()).unify(arg[0],arg[1]));
+	public static void main(String arg[]){
 
-	  //Unifier un = new Unifier();
-	  //un.unify(arg[0], arg[1]);
+		//textファイル処理
+		try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
+			String fileName = "dataset.txt"; // ファイル名指定
 
-  }
+			// 文字コードUTF-8を指定してBufferedReaderオブジェクトを作る
+			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
+
+			// 変数lineに1行ずつ読み込むfor文
+			for (String line = in.readLine(); line != null; line = in.readLine()) {
+				//System.out.println(line);  // 1行表示
+
+				if(arg.length != 2){ //引数が2つじゃなかったら...
+					System.out.println("Usgae : % Unify [string1] [string2]");
+				}else {
+
+					//1つ目の引数は入力, 2つ目の引数はtextの内容
+					System.out.println((new Unifier()).unify(arg[0],line));	//ここでarg[0]引数1, arg[1]に引数2
+				}
+			}
+			in.close();  // ファイルを閉じる
+		} catch (IOException e) {
+			e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
+		}
+
+	}
 }
 
 class Unifier {
