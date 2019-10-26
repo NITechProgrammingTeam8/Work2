@@ -86,9 +86,13 @@ class Presenter {
 				System.out.println(resultList.get(i));
 			}
 			*/
-
             // Unifyメソッドをここで呼ぶ
-            if(resultList.size() == 0) {
+            for(TextModel textModel : searchList) {
+                if(unify.unify(targetData, textModel.getText())) {
+                    resultList.add(textModel);
+                }
+            }
+            if(resultList.length() == 0) {
                 view.showNoData();
             } else {
                 //view.showSearchResult(resultList);
