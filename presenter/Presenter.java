@@ -95,8 +95,7 @@ class Presenter {
             if(resultList.length() == 0) {
                 view.showNoData();
             } else {
-                //view.showSearchResult(resultList);
-                view.showSearchResult(); // ViewInterfaceとの整合性のため
+                view.showSearchResult(resultList);
             }
         } catch(SQLException e) {
             view.showError(e.toString());
