@@ -13,7 +13,6 @@ class Presenter {
     private Dao dao = new Dao();
     private TextCon textCon = new TextCon();
     private Unify unify = new Unify();
-
     private ViewInterface view;
 
     public Presenter(ViewInterface view) {
@@ -26,7 +25,7 @@ class Presenter {
     public void start() {
         try {
             textCon.readTextFile();
-            view.successStart();
+            //view.successStart();
         } catch(FileNotFoundException e) {
             view.showError(e.toString());
         }
@@ -38,7 +37,7 @@ class Presenter {
     public void finish() {
         try {
             textCon.writeTextFile();
-            view.successFinish();
+            //view.successFinish();
         } catch(FileNotFoundException e) {
             view.showError(e.toString());
         }
@@ -49,7 +48,7 @@ class Presenter {
     public void addData(String newData) {
         try {
             dao.addData(newData);
-            view.successAddData();
+            //view.successAddData();
         } catch(SQLException e) {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
@@ -92,7 +91,7 @@ class Presenter {
                 view.showNoData();
             } else {
                 //view.showSearchResult(resultList);
-                view.showSearchResult(); // ViewInterfaceとの整合性のため
+                //view.showSearchResult(); // ViewInterfaceとの整合性のため
             }
         } catch(SQLException e) {
             view.showError(e.toString());
@@ -114,7 +113,7 @@ class Presenter {
     public void deleteData(int targetData) {
         try {
             dao.deleteData(targetData);
-            view.successDeleteData();
+            //view.successDeleteData();
         } catch(SQLException e) {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {
@@ -138,7 +137,7 @@ class Presenter {
             if(resultList.size() == 0) {
                 view.showNoData();
             } else {
-                view.showResultList(resultList);
+                //view.showResultList(resultList);
             }
         } catch(SQLException e) {
             view.showError(e.toString());

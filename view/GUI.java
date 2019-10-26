@@ -4,8 +4,9 @@
 class GUI {
 
     Presenter presenter;
-    init() {
-        presenter = new Presenter(this);
+    void init() {
+        //presenter = new Presenter(this);
+    	presenter = new Presenter(); // 【Text.java実行用】
     }
 
 }

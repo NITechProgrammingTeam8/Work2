@@ -6,4 +6,13 @@ class TextModel {
         this.uuid = uuid;
         this.text = text;
     }
+
+    // 表示用追加メソッド
+    public int getUUID() {
+    	return uuid;
+    }
+
+    public String getTEXT() {
+    	return text;
+    }
 }
