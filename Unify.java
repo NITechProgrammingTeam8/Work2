@@ -1,4 +1,4 @@
-﻿//package Work2;
+package Work2;
 /***
 Unify Program written
 
@@ -87,7 +87,7 @@ class Unifier {
   String buf2[];
   ArrayList<String> numH;
   ArrayList<String> arrayCopy;
-
+  int flag2;
   //コンストラクタ
   Unifier(){
 	  System.out.println("コンストラクタ1に入りました");
@@ -98,6 +98,7 @@ class Unifier {
       arg1List = new ArrayList<String>();
       valueName = 0;
       arrayCopy = null;
+      flag2 = 0;
   }
 
   //コンストラクタ   ← 使ってないけどね...
@@ -140,6 +141,7 @@ class Unifier {
     for(int i = 0; i < args.size(); i++)
         System.out.println("args[" + i + "] = " + args.get(i));
 
+
     //1つ目の引数,2つ目の引数,順番に処理するよ！
     for(int num = 0; num < args.size(); num++) {
 
@@ -147,7 +149,14 @@ class Unifier {
 	   * args[0]でとった変数の値をargs[1]に反映させて, 変数束縛させる
 	   * 変数束縛の複数性より,2つ目の引数は1つ以上になるので,その分,for文を回さないといけない...
 	   */
-      if(num > 0 & num < 3) {  //2回目以降で
+
+      if(num == 1) {  //2回目以降で
+    	  System.out.println("num = " + num);
+    	  System.out.println("args.size() = " + args.size());
+    	  System.out.println("varslist = " + varslist.toString());
+    	  System.out.println("vars2list = " + vars2list.toString());
+    	  System.out.println("vars = " + vars.toString());
+
     //	for(int keyNum = 0; keyNum < KeyList.size(); keyNum++) { //変数(?x,?yなどなど)の数だけ...
     		for(int valueNum = 0; valueNum < varslist.size(); valueNum++) { //その変数に対応する値(Taro, Jiroなどなど)の数だけ
     			//args[1]に変わるargs1List{?x=Taro, ?x=Jiroなどなど}
@@ -176,8 +185,8 @@ class Unifier {
 
 	  /*text読み込み*/
 	  try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
-		  //String fileName = "dataset.txt"; // ファイル名指定
-		  String fileName = "dataset_example.txt";
+		  String fileName = "dataset.txt"; // ファイル名指定
+		  //String fileName = "dataset_example.txt";
 
 		  // 文字コードUTF-8を指定してBufferedReaderオブジェクトを作る
 		  BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
@@ -289,15 +298,21 @@ class Unifier {
 	        	  if(vars.containsKey(KeyList.get(index))) {	//すでに作ったことがあったら,
 	        		  System.out.println("削除します");
 	        		  array.clear();	//消す
-	        		  array = arrayCopy;
+	        		  array = arrayCopy;//コピーを戻す
+	        		  flag2 = 1;
 	        	  }
 	        	  arrayCopy = array;	//コピーを取っておいて,
 	        	  array.add(ValueList.get(0));
-	        	  vars2list.add(array);
+	        	  if(flag2 == 0)
+	        		  vars2list.add(array);
+	        	  System.out.println("vars2list() = " + vars2list.toString());
+	        	  System.out.println("num = " + num);
+	        	  System.out.println("vars2list.get(" + index + ") = " + vars2list.get(index));
+	        	  vars.put(KeyList.get(index), vars2list.get(index));  //改良HashMapに格納
 
-	        	  vars.put(KeyList.get(index), vars2list.get(num));  //改良HashMapに格納
+	        	  flag2 = 0;
 	          }
-	          System.out.println("途中結果は"+vars.toString()+"\n");
+	          System.out.println("途中結果は" + vars.toString() + "\n");
 	          //System.out.println("Valuesは"+vars.values()+"\n");
 	          flag = 0; //falgのリセット
 		      /***********************************************/
@@ -308,8 +323,6 @@ class Unifier {
 	  }
 
 	  System.out.println(num+1 + "つ目の結果は"+vars.toString()+"\n");
-	  System.out.println("num = " + num);
-	  System.out.println("args.size() = " + args.size());
       } //←引数2つループ用
       // 最後まで O.K. なら成功
       System.out.println("最終結果は"+vars.toString());
