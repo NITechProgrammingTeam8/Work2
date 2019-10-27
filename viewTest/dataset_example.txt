@@ -6,14 +6,12 @@ Hanako has a hobby of playing video-games
 Hanako has a hobby of playing air-guitar
 Hanako studies philosophy
 Hanako loves Taro
-
 Taro is a boy
 Taro is a student
 Taro has a hobby of playing video-games
 Taro studies informatics
 Taro loves Jiro
 Taro has a pet named Jiro
-
 Jiro is a boy
 Jiro is a dog
 dog is a kind of mammal
