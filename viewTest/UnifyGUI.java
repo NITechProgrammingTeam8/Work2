@@ -5,15 +5,21 @@ import java.awt.event.*;
 import java.util.*;
 
 public class UnifyGUI extends JFrame implements ActionListener {
+    static Presenter presenter = new Presenter();
     JTextField text;
     JButton[] buttons;
 
     public static void main(String args[]) {
+        presenter.start();
+
         UnifyGUI frame = new UnifyGUI("パターン照合");
         frame.setVisible(true);
-    }
 
+        presenter.finish();
+    }
+    
     UnifyGUI(String title) {
+
         setTitle(title);
         int appWidth = 400;
         int appHeight = 300;
@@ -58,7 +64,9 @@ public class UnifyGUI extends JFrame implements ActionListener {
         String arg = text.getText();
 
         if (cmd.equals("検索")) {
+            presenter.searchData(arg);
         } else if (cmd.equals("追加")) {
+            presenter.addData(arg);
         } else if (cmd.equals("削除")) {
         }
     }
