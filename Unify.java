@@ -1,4 +1,4 @@
-package Work2;
+﻿//package Work2;
 /***
 Unify Program written
 
@@ -176,8 +176,8 @@ class Unifier {
 
 	  /*text読み込み*/
 	  try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
-		  String fileName = "dataset.txt"; // ファイル名指定
-		  //String fileName = "dataset_example.txt";
+		  //String fileName = "dataset.txt"; // ファイル名指定
+		  String fileName = "dataset_example.txt";
 
 		  // 文字コードUTF-8を指定してBufferedReaderオブジェクトを作る
 		  BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
