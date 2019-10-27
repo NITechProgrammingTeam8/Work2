@@ -1,4 +1,4 @@
-﻿//package Work2;
+package Work2;
 /***
 Unify Program written
 
@@ -72,19 +72,36 @@ class Unifier {
   String buffer1[];
   StringTokenizer st2;
   String buffer2[];
-  HashMap<String,String> vars;
+  HashMap<String,List<String>> vars;	//さあ,Challengeするぜ！複数人マッチング!
+  ArrayList<ArrayList<String>> vars2list;
+  int valueName;	//変数の種類管理
+  List<String> varslist;				//これも追加!
   int flag = 0;		//Missフラグ		//現状は,Missとは1文におけるトークン単位における定数同士のmissにします.
   List<String> KeyList;		//マッチング候補のKey
   List<String> ValueList;	//マッチング候補のValue
+  List<String> arg1List;		//第1引数のマッチング結果を第2引数に反映させるため
+  List<String> keyList;		//現在見ているKeyのインデントを返すため
+  StringTokenizer t1;
+  String buf1[];
+  StringTokenizer t2;
+  String buf2[];
+  ArrayList<String> numH;
+  ArrayList<String> arrayCopy;
 
   //コンストラクタ
   Unifier(){
 	  System.out.println("コンストラクタ1に入りました");
-      vars = new HashMap<String,String>();
+      vars = new HashMap<String, List<String>>();
+      KeyList = new ArrayList<String>();   //Keyリスト
+      //varslist = new ArrayList<String>();
+      vars2list = new ArrayList<ArrayList<String>>();
+      arg1List = new ArrayList<String>();
+      valueName = 0;
+      arrayCopy = null;
   }
 
-  //コンストラクタ
-  public boolean unify(String string1,String string2,HashMap<String,String> bindings){
+  //コンストラクタ   ← 使ってないけどね...
+  public boolean unify(String string1,String string2,HashMap<String,List<String>> bindings){
       System.out.println("コンストラクタ2に入りました");
 	  this.vars = bindings;
       return unify(string1,string2);
@@ -92,22 +109,75 @@ class Unifier {
 
   public boolean unify(String string1,String string2){
 
-	  //System.out.println(string1);
-      //System.out.println(string2);
+    //2回も同じ処理するの嫌だから配列にしてループさせます.
+    ArrayList<String> args = new ArrayList<String>();
+    args.add(string1);
+    args.add(string2);
 
-      //2回も同じ処理するの嫌だから配列にしてループさせます.
-      String[] args = {string1, string2};
+    //まずは変数が何種類あるかを知りたい
+    t1 = new StringTokenizer(args.get(0));
+    t2 = new StringTokenizer(args.get(1));
+    buf1 = new String[t1.countTokens()];
+    buf2 = new String[t2.countTokens()];
+    numH = new ArrayList<String>();
+    for(int i=0; i<t1.countTokens(); i++) {
+    	buf1[i] = t1.nextToken();
+    	if(var(buf1[i]))
+    			numH.add(buf1[i]);
+    }
+    for(int i=0; i<t2.countTokens(); i++) {
+    	buf2[i] = t2.nextToken();
+    	if(var(buf2[i])) {
+    		for(int j=0; j<numH.size(); j++) {
+    			if(!buf2[i].equals(numH.get(j)))
+    				numH.add(buf2[i]);
+    		}
+    	}
+    }
+    System.out.println("変数の数 = " + numH.size());
 
-      //とりあえずデバック用
-      for(int i = 0; i < args.length; i++)
-          System.out.println("args[" + i + "] = " + args[i]);
+    //とりあえずデバック用
+    for(int i = 0; i < args.size(); i++)
+        System.out.println("args[" + i + "] = " + args.get(i));
 
-      //こっからメイン!
-      for(int num = 0; num < args.length; num++) {
+    //1つ目の引数,2つ目の引数,順番に処理するよ！
+    for(int num = 0; num < args.size(); num++) {
+
+	  /* (注意)
+	   * args[0]でとった変数の値をargs[1]に反映させて, 変数束縛させる
+	   * 変数束縛の複数性より,2つ目の引数は1つ以上になるので,その分,for文を回さないといけない...
+	   */
+      if(num > 0 & num < 3) {  //2回目以降で
+    //	for(int keyNum = 0; keyNum < KeyList.size(); keyNum++) { //変数(?x,?yなどなど)の数だけ...
+    		for(int valueNum = 0; valueNum < varslist.size(); valueNum++) { //その変数に対応する値(Taro, Jiroなどなど)の数だけ
+    			//args[1]に変わるargs1List{?x=Taro, ?x=Jiroなどなど}
+    			System.out.println("KeyList.get("+ 0 +") = " + KeyList.get(0));
+    			System.out.println("varslist.get("+valueNum+") = " + varslist.get(valueNum));
+
+    			//文字列の中に?が入っていたら...
+    			if(string2.contains("?")) {
+    				//文字列として置き換えて,新しく作成！
+    				String stringx = string2.replace(KeyList.get(0), varslist.get(valueNum));
+    				System.out.println("stringx = " + stringx);
+    				args.add(stringx);	//などなど
+    			}
+    		}
+    //	}
+    	args.remove(1); //まずは,1個置き換えて...//ここも引数2個で限定しちゃっているけど...
+    	System.out.println("args.size() = " + args.size());
+      }	//ん～いまは引数2つで許して...
+
+      varslist = new ArrayList<String>();   //複数人対応のValue:値を格納させる.
+      /* (miss)
+       * ここでvalue:値のリストを作ると,2回目のループと3回目のループで別ものが生成されてしまう.
+       * だって,args[2],args[3]で{?x=Taro,?x=Jiroの別々に?yを生成させとるもんね}
+       * やはり,変数の数に対応させたvalueリストを複数生成させるしかない.
+       */
+
 	  /*text読み込み*/
 	  try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
-		  //String fileName = "dataset.txt"; // ファイル名指定
-		  String fileName = "dataset_example.txt";
+		  String fileName = "dataset.txt"; // ファイル名指定
+		  //String fileName = "dataset_example.txt";
 
 		  // 文字コードUTF-8を指定してBufferedReaderオブジェクトを作る
 		  BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
@@ -118,28 +188,23 @@ class Unifier {
 			  System.out.println("line = " + line);
 			  /************ここからは通常の処理内容****************/
 		      // 同じなら成功
-		      if(args[num].equals(line)) {
+		      if(args.get(num).equals(line)) {
 		    	  //return true;	//ここは帰らずに,データを保存してほしんだけど...
-
 		    	  //ここfor文全体を囲めば,いいな!! 今回,どうでもいいし!
-
 		      }
 
 		      // 各々トークンに分ける
-		      st1 = new StringTokenizer(args[num]);
-		      st2 = new StringTokenizer(line);
+		      st1 = new StringTokenizer(args.get(num)); //ふつうの引数で
+		      st2 = new StringTokenizer(line);  //ここはふつうにデータセットの内容
 
 		      // 数が異なったら失敗
 		      if(st1.countTokens() != st2.countTokens()) {
 		    	  //return false;  //ミスっても,帰らずに...
-
 		    	  //ここfor文全体を囲めば,null入れて補正させる必要もないな!!!!!
-
 		    	  System.out.println("Search Error 1");
 		      }
 
 		      // 定数同士
-
 		      /* (注意点)
 		       * 文字列をトークンごとに分解したときに,トークンの数が合わないとErrorが起きるので...
 		       * 長いほうに合わせます!
@@ -150,8 +215,9 @@ class Unifier {
 
 		      buffer1 = new String[length];
 		      buffer2 = new String[length];
-		      KeyList = new ArrayList<String>();   //Keyリスト
-		      ValueList = new ArrayList<String>(); //Valueリスト
+		      //KeyList = new ArrayList<String>();   //Keyリスト
+		      ValueList = new ArrayList<String>();   //Valueリスト
+		      keyList = new ArrayList<String>();;		//現在見ているKeyのインデントを返す
 
 		      //System.out.println("length = " + length);
 		      //System.out.println("st1.countTokens() = " + st1.countTokens());
@@ -166,23 +232,19 @@ class Unifier {
 		      int st2len = st2.countTokens();
 
 		      for(int i = 0 ; i < length; i++){ //4
-
 		    	  //トークン1に関して
 		    	  if(i < st1len) //4
 		    		  buffer1[i] = st1.nextToken();
 		    	  else
 		    		  buffer1[i] = null;
-
 		    	  //トークン2に関して
 		    	  if(i < st2len) //3
 		    		  buffer2[i] = st2.nextToken();
 		    	  else
 		    		  buffer2[i] = null;
-
 		          System.out.println("buffer1[" + i + "] = " + buffer1[i]);
 		    	  System.out.println("buffer2[" + i + "] = " + buffer2[i]);
 		      }
-
 
 		      System.out.println("flag = " + flag);
 
@@ -193,66 +255,48 @@ class Unifier {
 		              //return false;
 		        	  System.out.println("Search Error 2");
 
-		        	  /* (注意)
-		        	   *  1語でもマッチングしてないものがあれば,先のマッチング成功は無しにする
-		        	   * ex) ?x is a boy と Hanako is a girl
-		        	   * ?x = Hanakoで先にマッチングするが,その後, boy != girlなので先のマッチング結果を取り消す.
-		        	   * (感)おそらく,1回マッチングしちゃうんと,上書きされないってことですね.
-		        	   *
-		        	   * んで...return falseで返すとしっかりそこ無かったことにしてくれるんですよね～ ← いやそうでもないか...
-		        	   * falseって返して逃げてるだけか...
-		        	   *
-		        	   * 希望としては, ここでミスったら,次の文章に進んでほしいんですよね
-		        	   */
-
-		        	  //if(flag == 1) {	//もし(一度マッチングしてるのに)他の単語でエラーが起きたら...
-
-		        		  //HashMapからさっき入れたKey(tokenMatchingメソッドより,変数)を探し,そいつを削除するぜ！
-		        		  //↑それだと1つのKeyに複数対応ができなくなるので...
-		        		  //やはりKeyとValueセットにしないと!
-		        		  //for(int len = 0; len < KeyList.size(); len++) {
-		        		  //	  vars.remove(KeyList.get(len),ValueList.get(len));
-		        		  //}
-		        		  // ↑ だと, ミスした後にマッチングしたら,それを消去できない.
-		        		  /* eg)
-		        		   *line = Hanako studies philosophy
-							buffer1[0] = ?x
-							buffer2[0] = Hanako
-							buffer1[1] = loves
-							buffer2[1] = studies
-							buffer1[2] = ?y
-							buffer2[2] = philosophy
-							flag = 0
-							flag = 0
-							token1 = ?x
-							token2 = Hanako
-							Search Error 2
-							途中結果は{?x=Taro}
-
-							flag = 0
-							token1 = loves
-							token2 = studies
-							Search Error 2
-							途中結果は{?x=Taro}
-
-							flag = 0
-							token1 = ?y
-							token2 = philosophy
-							途中結果は{?x=Taro, ?y=philosophy}  //←ここを消せない...
-
-							やはり,「HashMapに入れて,その後,ダメだったら消す」というやり方はOUT!!!
-		        	  }*/
 		        	  flag = 1;
 		          }
 		          //とりあえずデバック用
 		          //System.out.println("途中結果は"+vars.toString()+"\n");  //もう1トークン事にやる必要ないので！
 
-		      }//1文の解析がすべて終わって...
+		      } //1文の解析がすべて終わって...
 	          if(flag == 0) {	//missflagが一度も上がっていないなら,
-	        	  for(int len = 0; len < KeyList.size(); len++)
-	        		  vars.put(KeyList.get(len), ValueList.get(len));  //HashMapに格納
-	          }
+	        	  for(int len = 0; len < ValueList.size(); len++) {
+	        		  //vars.put(KeyList.get(len), ValueList.get(len));  //HashMapに格納
+	        		  System.out.println("ValueList.get(" + len + ") = " + ValueList.get(len));
+	        		  varslist.add(ValueList.get(len));
+	        	  }
+	          } //Textの文全てが終わったら...
 
+	          /* 複数人のマッチングに対応するために...
+	           * HashMapの値:ValueをList化しないといけない
+	           * → ということは, 1文ずつじゃなくて,Text全体を終わってから,varslistを用いて,vars.put()しないといけない
+	           */
+
+	          if(flag == 0) {
+	        	  //System.out.println("num = " + num);
+	        	  System.out.println("keyList.get(0) = " + keyList.get(0));
+	        	  System.out.println("indexOf = " + KeyList.indexOf(String.valueOf(keyList.get(0))));
+	        	  int index = KeyList.indexOf(String.valueOf(keyList.get(0)));
+	        	  System.out.println("KeyList = " + KeyList.get(index));	//いま見てるKeyの番号にしないと！
+
+	        	  //ここは,?x,?yに対応させただけだから！
+
+	        	  System.out.println("index = " + index);
+	        	  /* 参照渡しだから,作ったリストを削除してももとの場所をささない.*/
+	        	  ArrayList<String> array = new ArrayList<>();
+	        	  if(vars.containsKey(KeyList.get(index))) {	//すでに作ったことがあったら,
+	        		  System.out.println("削除します");
+	        		  array.clear();	//消す
+	        		  array = arrayCopy;
+	        	  }
+	        	  arrayCopy = array;	//コピーを取っておいて,
+	        	  array.add(ValueList.get(0));
+	        	  vars2list.add(array);
+
+	        	  vars.put(KeyList.get(index), vars2list.get(num));  //改良HashMapに格納
+	          }
 	          System.out.println("途中結果は"+vars.toString()+"\n");
 	          //System.out.println("Valuesは"+vars.values()+"\n");
 	          flag = 0; //falgのリセット
@@ -264,16 +308,17 @@ class Unifier {
 	  }
 
 	  System.out.println(num+1 + "つ目の結果は"+vars.toString()+"\n");
+	  System.out.println("num = " + num);
+	  System.out.println("args.size() = " + args.size());
       } //←引数2つループ用
-
       // 最後まで O.K. なら成功
       System.out.println("最終結果は"+vars.toString());
 
 
       //HashMapのメソッド↓
       //https://docs.oracle.com/javase/jp/8/docs/api/java/util/HashMap.html
-      System.out.println("Key:?xに該当する値:Value = " + vars.get("?x"));
-      System.out.println("Key:?yに該当する値:Value = " + vars.get("?y"));
+      //System.out.println("Key:?xに該当する値:Value = " + vars.get("?x"));
+      //System.out.println("Key:?yに該当する値:Value = " + vars.get("?y"));
 
       return true;
   }
@@ -290,22 +335,55 @@ class Unifier {
   }
 
   boolean varMatching(String vartoken,String token){
-      if(vars.containsKey(vartoken)){		//HashMapにvartokenというキー(Not値)が存在するかどうか
-          if(token.equals(vars.get(vartoken))){		//"HashMapにKeyであるvartokenに対応するValue値" と "token"が同じだったら...
-              return true;
-         } else { //ちがってても対応しないと！とりあえず,なんでもtrueにしちゃおう！(笑)
-              return false;
-          }
-      } else {
+	  /* (注意)
+	   * すでに?x = Taroという制約あがある状態で,さらに?x = Jiroを付け加えないといけない.
+	   * うやむやにやっても,かぶっている候補を増やしてしまうだけである.
+	   */
+	  //すでにあるKeyに対して...
+      if(vars.containsKey(vartoken)){	//HashMapにvartokenというキー(Not値)が存在するかどうか
+    	  System.out.println("varslist.size() = " + varslist.size());
+
+    	  //まだvarslistには入ってないけど,Maticng成功した場合,
+    	  if(varslist.size() == 0) {
+      		  ValueList.add(token);
+      		  keyList.add(vartoken);
+    	  }
+
+    	  //普段はこっちだよね
+    	  else {
+    	  for(int i = 0; i < varslist.size(); i++) {
+    		  //すでに登録されている関係なら...
+    		  //System.out.println("ここは,"+(vars.get(vartoken)).get(0));
+    		  if(token.equals((vars.get(vartoken)).get(i))){	//"HashMapにKeyであるvartokenに対応するValue値" と "token"が同じだったら...
+    			  System.out.println("token.equals((vars.get(vartoken)).get(" + i + ")) = " + token.equals((vars.get(vartoken)).get(i)));
+              	  //return true;
+          	  } else { //別の値(TaroじゃなくてJiro)が来たら,加えます.
+        	  	  //Keyも含めて再登録しないと...
+          		  //KeyList.add(vartoken);
+          		  ValueList.add(token);
+          		  keyList.add(vartoken);
+        	  	  //return true;
+         	  }
+    	  }
+    	  }
+    	  return true;
+      }
+
+      //初めてのKeyに関して...
+      else {
           replaceBuffer(vartoken,token);
-          if(vars.containsValue(vartoken)){		//HashMapにvartokenという値(Notキー)が存在するかどうか
+          //if(vars.containsValue(vartoken)){	//HashMapにvartokenという値(Notキー)が存在するかどうか
+          if(varslist.contains(vartoken)) {		//HashMapの値リスト:varslistに含まれているかどうかで見る
               replaceBindings(vartoken,token);
           }
           //ここではまだしません.
           //vars.put(vartoken,token);		//キーと値を対応づけ
           //格納しておくだけ
-          KeyList.add(vartoken);
+          if(!KeyList.contains(vartoken)) {   //1回だけでっせ！
+        	  KeyList.add(vartoken);
+          }
           ValueList.add(token);
+          keyList.add(vartoken);
           //flag = 1;		//HashMapに格納させれたのでFlag上げます! → flagの使い方変更
       }
       return true;
@@ -353,7 +431,7 @@ class Unifier {
       //System.out.println("key = " + key);
       if(preString.equals(vars.get(key))){  //get(key)で,keyに対応づけられた"値"を取り出す
     	  //System.out.println("入,"+vars.get(key));
-    	  vars.put(key,postString);
+  //  	  vars.put(key,postString);
       }
   }
   }

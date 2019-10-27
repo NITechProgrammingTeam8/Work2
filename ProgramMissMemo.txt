@@ -1,0 +1,62 @@
+for(int i = 0 ; i < length ; i++){ //1語ずつマッチングしていきます
+		    	  System.out.println("flag = " + flag);
+
+		          if(!tokenMatching(buffer1[i],buffer2[i])){ //マッチングできてないなら...
+		              //return false;
+		        	  System.out.println("Search Error 2");
+
+		        	  /* (注意)
+		        	   *  1語でもマッチングしてないものがあれば,先のマッチング成功は無しにする
+		        	   * ex) ?x is a boy と Hanako is a girl
+		        	   * ?x = Hanakoで先にマッチングするが,その後, boy != girlなので先のマッチング結果を取り消す.
+		        	   * (感)おそらく,1回マッチングしちゃうんと,上書きされないってことですね.
+		        	   *
+		        	   * んで...return falseで返すとしっかりそこ無かったことにしてくれるんですよね～ ← いやそうでもないか...
+		        	   * falseって返して逃げてるだけか...
+		        	   *
+		        	   * 希望としては, ここでミスったら,次の文章に進んでほしいんですよね
+		        	   */
+
+		        	  //if(flag == 1) {	//もし(一度マッチングしてるのに)他の単語でエラーが起きたら...
+
+		        		  //HashMapからさっき入れたKey(tokenMatchingメソッドより,変数)を探し,そいつを削除するぜ！
+		        		  //↑それだと1つのKeyに複数対応ができなくなるので...
+		        		  //やはりKeyとValueセットにしないと!
+		        		  //for(int len = 0; len < KeyList.size(); len++) {
+		        		  //	  vars.remove(KeyList.get(len),ValueList.get(len));
+		        		  //}
+		        		  // ↑ だと, ミスした後にマッチングしたら,それを消去できない.
+		        		  /* eg)
+		        		   *line = Hanako studies philosophy
+							buffer1[0] = ?x
+							buffer2[0] = Hanako
+							buffer1[1] = loves
+							buffer2[1] = studies
+							buffer1[2] = ?y
+							buffer2[2] = philosophy
+							flag = 0
+							flag = 0
+							token1 = ?x
+							token2 = Hanako
+							Search Error 2
+							途中結果は{?x=Taro}
+
+							flag = 0
+							token1 = loves
+							token2 = studies
+							Search Error 2
+							途中結果は{?x=Taro}
+
+							flag = 0
+							token1 = ?y
+							token2 = philosophy
+							途中結果は{?x=Taro, ?y=philosophy}  //←ここを消せない...
+
+							やはり,「HashMapに入れて,その後,ダメだったら消す」というやり方はOUT!!!
+		        	  }*/
+		        	  flag = 1;
+		          }
+		          //とりあえずデバック用
+		          //System.out.println("途中結果は"+vars.toString()+"\n");  //もう1トークン事にやる必要ないので！
+
+		      } //1文の解析がすべて終わって...
