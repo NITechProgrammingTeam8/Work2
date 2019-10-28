@@ -1,3 +1,4 @@
+package Work2ver2;
 class TextModel {
     private int uuid;
     private String text;

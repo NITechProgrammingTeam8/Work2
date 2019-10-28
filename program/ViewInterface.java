@@ -1,3 +1,4 @@
+package Work2ver2;
 import java.util.List;
 
 interface ViewInterface {
@@ -8,7 +9,7 @@ interface ViewInterface {
     //データ追加完了メソッド
     void successAddData();
     //検索結果反映メソッド
-    void showSearchResult(List<TextModel> resultList);
+    void showSearchResult(List<String> resultList);
     //データ削除メソッド
     void successDeleteData();
     //一覧表示メソッド

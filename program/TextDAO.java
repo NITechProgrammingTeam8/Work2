@@ -1,4 +1,4 @@
-
+package Work2ver2;
 /*
  * DBにアクセスする
  */

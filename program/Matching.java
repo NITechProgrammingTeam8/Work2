@@ -1,3 +1,4 @@
+package Work2ver2;
 /***
 Matching Program written
 
@@ -34,21 +35,21 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
-import java.util.ArrayList;
 
 /**
 * マッチングのプログラム
 *
 */
 class Matching {
-		
+
   public static void main(String arg[]){
 	if(arg.length != 2){
 	    System.out.println("Usgae : % Matching [string1] [string2]");
 	}
-	
+
 	//マッチした答えを格納するリスト
 	ArrayList<String> answer = new ArrayList<String>();
 
@@ -72,7 +73,7 @@ class Matching {
     } catch (IOException e) {
         e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
     }
-	
+
 	//テスト出力用
 	for(int i = 0; i < answer.size(); i++) {
 		System.out.println(answer.get(i));
@@ -99,7 +100,7 @@ class Matching {
 		flag = 0;
 	  }
 
-/***	  
+/***
 	  public boolean matching(String string1,String string2,HashMap<String,String> bindings){
 		this.vars = bindings;
 		if(matching(string1,string2)){
@@ -108,7 +109,7 @@ class Matching {
 		    return false;
 		}
 	  }
-	 
+
 ***/
 
 	  public String matching(String string1,String string2){
@@ -129,10 +130,10 @@ class Matching {
 		for(int i = 0 ; i < st1.countTokens();){
 		    if(!tokenMatching(st1.nextToken(),st2.nextToken())){
 			// トークンが一つでもマッチングに失敗したら失敗
-			return " ";
+			return "gotaku";
 		    }
 		}
-		
+
 
 		// 最後まで O.K. なら成功
 		//System.out.println(vars.get(KeyList.get(0)));
@@ -152,7 +153,7 @@ class Matching {
 		    if(token.equals(vars.get(vartoken))){
 		    	//System.out.println(token);
 			return true;
-		    } 
+		    }
 		    else {
 			return false;
 		    }
