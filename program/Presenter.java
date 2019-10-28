@@ -12,11 +12,11 @@ class Presenter {
     private Unify unify = new Unify();
     //private Matcher matching = new Matcher();
     private ViewInterface view;
-    Matching matching2;
+    Matcher matching2;
 
     public Presenter(ViewInterface view) {
         this.view = view;
-        matching2 = new Matching();
+        matching2 = new Matcher();
     }
 
     // GUI起動時にTextDAOに対してテキストファイルからデータベースへの読み込みを指示する
@@ -66,7 +66,7 @@ class Presenter {
 
     // 検索データをデータベースから取得するように指示する
     // あおしゅー：データ検索のアクションを受け取ったとき、このメソッドを呼んでください
-    public void searchData(String targetData) {
+    public void searchData(String targetData) { // 複数の質問文は,区切りで与える
         List<TextModel> resultList;
         List<String> ValueList = new ArrayList<String>(); //【DBからlineしか取らない
 
