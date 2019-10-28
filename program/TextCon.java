@@ -1,4 +1,3 @@
-package Work2ver2;
 /*
  * DB検索が行えるようにする．
  * TextDAOにアクセス
