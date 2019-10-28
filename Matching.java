@@ -36,16 +36,21 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.ArrayList;
 
 /**
 * マッチングのプログラム
 *
 */
 class Matching {
+		
   public static void main(String arg[]){
 	if(arg.length != 2){
 	    System.out.println("Usgae : % Matching [string1] [string2]");
 	}
+	
+	//マッチした答えを格納するリスト
+	ArrayList<String> answer = new ArrayList<String>();
 
 	//textファイル処理
 	try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
@@ -60,12 +65,18 @@ class Matching {
 
             //1つ目の引数は入力, 2つ目の引数はtextの内容
             //System.out.println((new Matcher()).matching(arg[0],line));
-            (new Matcher()).matching(arg[0],line);//ここでarg[0]引数1, arg[1]に引数2
+        	//matchingした答えを格納
+            answer.add((new Matcher()).matching(arg[0],line));//ここでarg[0]引数1, arg[1]に引数2
         }
         in.close();  // ファイルを閉じる
     } catch (IOException e) {
         e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
     }
+	
+	//テスト出力用
+	for(int i = 0; i < answer.size(); i++) {
+		System.out.println(answer.get(i));
+	}
 
 	//System.out.println((new Matcher()).matching(arg[0],arg[1]));	//ここでarg[0]引数1, arg[1]に引数2
   }
@@ -79,11 +90,16 @@ class Matching {
 	  StringTokenizer st1;
 	  StringTokenizer st2;
 	  HashMap<String,String> vars;
+	  ArrayList<String> KeyList;  //Keyをとり,HashMapのValueを取るためのリスト
+	  int flag;	//ミスフラグ
 
 	  Matcher(){
 		vars = new HashMap<String,String>();
+		KeyList = new ArrayList<String>();
+		flag = 0;
 	  }
 
+/***	  
 	  public boolean matching(String string1,String string2,HashMap<String,String> bindings){
 		this.vars = bindings;
 		if(matching(string1,string2)){
@@ -92,33 +108,35 @@ class Matching {
 		    return false;
 		}
 	  }
+	 
+***/
 
-	  public boolean matching(String string1,String string2){
+	  public String matching(String string1,String string2){
 		//System.out.println(string1);
 		//System.out.println(string2);
 
 		// 同じなら成功
-		if(string1.equals(string2)) return true;
+		if(string1.equals(string2)) return " ";
 
 		// 各々トークンに分ける
 		st1 = new StringTokenizer(string1);
 		st2 = new StringTokenizer(string2);
 
 		// 数が異なったら失敗
-		if(st1.countTokens() != st2.countTokens()) return false;
+		if(st1.countTokens() != st2.countTokens()) return " ";
 
 		// 定数同士
 		for(int i = 0 ; i < st1.countTokens();){
 		    if(!tokenMatching(st1.nextToken(),st2.nextToken())){
 			// トークンが一つでもマッチングに失敗したら失敗
-			return false;
+			return " ";
 		    }
 		}
 		
 
 		// 最後まで O.K. なら成功
-		System.out.println(vars);
-		return true;
+		//System.out.println(vars.get(KeyList.get(0)));
+		return vars.get(KeyList.get(0));
 	  }
 
 	  boolean tokenMatching(String token1,String token2){
@@ -140,6 +158,7 @@ class Matching {
 		    }
 		} else {
 		    vars.put(vartoken,token);
+		    KeyList.add(vartoken);
 		    //System.out.println(vars.get(vartoken));
 		}
 		return true;
