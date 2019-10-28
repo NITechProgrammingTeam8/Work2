@@ -15,4 +15,9 @@ class TextModel {
     public String getTEXT() {
     	return text;
     }
+
+    @Override
+    public String toString() {
+        return "id=" + uuid + ", text=" + text;
+    }
 }

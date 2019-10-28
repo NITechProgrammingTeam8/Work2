@@ -15,7 +15,7 @@
 class Test {
 	public static void main(String arg[]){
 
-		Presenter presenter = new Presenter();
+		Presenter presenter = new Presenter(new View());
 		presenter.start();
 
 		presenter.addData("Mike is a boy");
@@ -28,6 +28,8 @@ class Test {
 
 		presenter.searchData("Taro studies ?x");
 
+		presenter.fetchData();
+		
 		presenter.finish();
 
 	}
