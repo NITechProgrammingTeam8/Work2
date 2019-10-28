@@ -102,6 +102,7 @@ public class UnifyGUI extends JFrame implements ActionListener {
 
         if (cmd.equals("検索")) {
             presenter.searchData(arg);
+            sModel.clear();
             searchList = view.getSr();
             for (String text : searchList) {
                 sModel.addElement(text);
