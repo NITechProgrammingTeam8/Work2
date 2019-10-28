@@ -25,6 +25,11 @@ public class TextCon{
 			// tableの作成【DB】
 			TextDAO.createTab();
 
+			TextDAO.conCom();
+			// 既存データの削除【DB】
+			TextDAO.deleteData();
+
+
 			// ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
 			String fileName = "dataset_example.txt"; // ファイル名指定
 			//String fileName = "rugby.txt"; // ファイル名指定
@@ -78,9 +83,6 @@ public class TextCon{
 		} catch (IOException e) {
 			e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
 		}
-
-		//削除【DB】
-		TextDAO.deleteDB();
 
 		//【DB】
 		TextDAO.closeConn();
