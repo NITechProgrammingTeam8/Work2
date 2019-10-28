@@ -1,4 +1,4 @@
-package Work2ver2;
+
 /*
  * DBにアクセスする
  */
@@ -57,7 +57,7 @@ public class TextDAO{
 		conn = DriverManager.getConnection(connDB);
 		conn.setAutoCommit(false);
 
-		sql = "create table texts(uuid int, line text)";
+		sql = "create table if not exists texts(uuid int, line text)";
 		pStmt = conn.prepareStatement(sql);
 		pStmt.executeUpdate();
 		}catch(SQLException e) {
@@ -129,8 +129,8 @@ public class TextDAO{
 		return DBList;
 	}
 
-	// DBtableの削除
-	public static void deleteDB() {
+	// DBtableの中身の削除
+	public static void deleteData() {
 		conn = null;
 		PreparedStatement pStmt = null;
 		try{
@@ -139,7 +139,7 @@ public class TextDAO{
 				 conn = DriverManager.getConnection(connDB);
 				 conn.setAutoCommit(false);
 			}
-	    	String sql = "drop table texts";
+	    	String sql = "delete from texts";
 	    	pStmt = conn.prepareStatement(sql);
 	   		pStmt.executeUpdate();
 		}catch(SQLException e) {
@@ -155,4 +155,5 @@ public class TextDAO{
 			}
 		}
 	}
+
 }
