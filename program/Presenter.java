@@ -1,4 +1,3 @@
-
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,11 +12,11 @@ class Presenter {
     private Unify unify = new Unify();
     //private Matcher matching = new Matcher();
     private ViewInterface view;
-    Matcher matching2;
+    Matching matching2;
 
     public Presenter(ViewInterface view) {
         this.view = view;
-        matching2 = new Matcher();
+        matching2 = new Matching();
     }
 
     // GUI起動時にTextDAOに対してテキストファイルからデータベースへの読み込みを指示する
