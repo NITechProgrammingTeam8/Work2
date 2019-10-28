@@ -14,7 +14,6 @@ public class TextDAO{
 
 	public static Connection conn = null;
 	public static final String connDB = "jdbc:sqlite:data.db";
-	//public static final String connDB = "jdbc:sqlite:rugby.db";
 	public static int id = 1;
 
 	public static void conCom(){
@@ -127,32 +126,5 @@ public class TextDAO{
 
 		}
 		return DBList;
-	}
-
-	// DBtableの削除
-	public static void deleteDB() {
-		conn = null;
-		PreparedStatement pStmt = null;
-		try{
-		    Class.forName("org.sqlite.JDBC");
-		    if(conn == null){
-				 conn = DriverManager.getConnection(connDB);
-				 conn.setAutoCommit(false);
-			}
-	    	String sql = "drop table texts";
-	    	pStmt = conn.prepareStatement(sql);
-	   		pStmt.executeUpdate();
-		}catch(SQLException e) {
-			e.printStackTrace();
-		}catch(ClassNotFoundException e){
-			e.printStackTrace();
-		} finally {
-			try{
-				conCom();
-				pStmt.close();
-			}catch(SQLException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }
