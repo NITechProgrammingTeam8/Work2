@@ -1,0 +1,693 @@
+\documentclass[12pt]{jarticle}
+\usepackage[top=30truemm,bottom=30truemm]{geometry}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{url}
+\usepackage{listings,jlisting}
+\usepackage{ascmac}
+\usepackage{amsmath,amssymb}
+
+%ここからソースコードの表示に関する設定
+\lstset{
+  basicstyle={\ttfamily},
+  identifierstyle={\small},
+  commentstyle={\smallitshape},
+  keywordstyle={\small\bfseries},
+  ndkeywordstyle={\small},
+  stringstyle={\small\ttfamily},
+  frame={tb},
+  breaklines=true,
+  columns=[l]{fullflexible},
+  numbers=left,
+  xrightmargin=0zw,
+  xleftmargin=3zw,
+  numberstyle={\scriptsize},
+  stepnumber=1,
+  numbersep=1zw,
+  lineskip=-0.5ex
+}
+%ここまでソースコードの表示に関する設定
+
+\title{知能プログラミング演習II 課題2}
+\author{グループ8\\
+  29114142 湯浅範子\\
+}
+\date{2019年10月29日}
+
+\begin{document}
+\maketitle
+
+\paragraph{提出物} rep2(29114142.pdf),group08.zip
+\paragraph{グループ} グループ8
+\paragraph{メンバー}
+\begin{tabular}{|c|c|c|}
+  \hline
+  学生番号&氏名&貢献度比率\\
+  \hline\hline
+  29114003&青山周平&\\
+  \hline
+  29114060&後藤拓也&\\
+  \hline
+  29114116&増田大輝&\\
+  \hline
+  29114142&湯浅範子&\\
+  \hline
+  29119016&小中祐希&\\
+  \hline
+\end{tabular}
+
+
+\section{課題の説明}
+\begin{description}
+\item[必須課題2-1] MatchingクラスまたはUnifyクラスを用い，パターンで検索可能な簡単なデータベースを作成せよ．
+\item[必須課題2-2] 自分たちの興味ある分野の知識についてデータセットを作り，上記2-1で実装したデータベースに登録せよ．また，検索実行例を示せ．どのような方法でデータセットを登録しても構わない．
+\item[発展課題2-3] 上記システムの GUI を作成せよ. \\
+・データの追加，検索，削除を GUI で操作できるようにすること. \\
+・登録されたデータが次回起動時に消えないよう, 登録されたデータをファイルへ 書き込んだり読み込んだりできるようにすること.
+\end{description}
+今回私は3つ全ての課題に関わるプログラム等を作成したため，それぞれについて順に記述していく．
+
+\section{必須課題2-1}
+\begin{screen}
+  MatchingクラスまたはUnifyクラスを用い，パターンで検索可能な簡単なデータベースを作成せよ．
+\end{screen}
+私の担当箇所は，データセットからデータを読み取り，データベースに格納するためのメソッドの作成である．
+
+\subsection{手法}
+課題内容の実装のために，以下のように改良を加えた．
+
+\begin{enumerate}
+\item 与えられたデータセットをDBに格納する．
+\item DBにアクセスするためのDAOを作成する．
+\item DBから得られたデータと，検索文を比較して検索を行えるようMatching.javaとUnify.javaを改良する．
+\end{enumerate}
+
+1.に関して，テキストファイルとDB間でデータのやり取りを行うため，テキストファイルにアクセスするためのjavaファイルTextCon.javaを作成した．そして1.の実現のため，テキストファイルからデータを読み込むためのメソッドreadTextFileを作成した．これは私が担当した．
+
+2.に関しては，DBアクセスを行う際のデザインパターンであるDAOの作成のため，TextDAO.javaを作成した．具体的にはtable(texts)を作成し，columnとしてuuid(int型)とline(text型)を定め，そこにテキストファイルの中身が入るようにした．これも私が担当した．
+
+3.に関しては，与えられたUnify.javaでは変数入力の際に値を返すことが出来ないため，変数検索にも対応可能になるようプログラムの書き換えを行った．これは後藤君と小中君が担当した．
+
+\subsection{実装}
+まずテキストファイルからDBを利用するためのプログラムを作成した．始めにDBとそのtableを作成し，その内容を初期化する．その後与えられた「テキストファイルに対する操作のプログラム」を利用してテキストファイルから一文ずつ取り出しDBに格納する．\par
+このとき，テキストファイルを読み込むためのメソッドはreadTextFile，DBとそのtableを作成するメソッドがcreateTab，DBのtable内部を初期化するメソッドがdeleteData，読み込んだデータをDBに格納するメソッドがinsertTextTabである．\par
+テキストファイルアクセスとDBアクセスを分けるため，それぞれTextCon.java，TextDAO.javaというファイルを作成し，readTextFileメソッドはTextCon.javaに，createTab，deleteData，insertTextTabメソッドはTextDAO.javaに含まれている．\\
+
+また，DBアクセスプログラムは，3年生前期の授業で取ったプログラミング応用の課題で作成したDAOなどのプログラムも参考にして作成を行った．\\
+
+テキストファイルを読み込んでDBアクセスを指示するreadTextFileメソッドの実装をソースコード\ref{readTextFile}に示す．
+\begin{lstlisting}[caption=readTextFileメソッド,label=readTextFile]
+public void readTextFile() throws FileNotFoundException{
+	String empty = "";
+	//textファイル処理
+	try {
+		// tableの作成【DB】
+		TextDAO.createTab();
+		TextDAO.conCom();
+		// tableの中身の初期化【DB】
+		TextDAO.deleteData();
+
+		// ファイル読み込み操作
+			・・・
+			if (!line.equals(empty)) {
+				// 更新【DB】
+				TextDAO.insertTextTab(line);
+			}
+			//【DB】
+			TextDAO.conCom();
+		}
+		in.close();  // ファイルを閉じる
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	//【DB】
+	TextDAO.conCom();
+	TextDAO.closeConn();
+}
+\end{lstlisting}
+
+DBのtable作成のためのcreateTabメソッドをソースコード\ref{createTab}に示す．
+\begin{lstlisting}[caption=createTabメソッド,label=createTab]
+public static Connection conn = null;
+public static final String connDB = "jdbc:sqlite:data.db";
+// 格納用tableを作成
+public static void createTab(){
+	PreparedStatement pStmt = null;
+	String sql;
+	try{
+		Class.forName("org.sqlite.JDBC");
+		conn = DriverManager.getConnection(connDB);
+		conn.setAutoCommit(false);
+		sql = "create table texts(uuid int, line text)";
+		pStmt = conn.prepareStatement(sql);
+		pStmt.executeUpdate();
+	}catch{
+		・・・
+	}
+}
+\end{lstlisting}
+
+DBのtableの中身の初期化のためのdeleteDataメソッドをソースコード\ref{deleteData}に示す．
+\begin{lstlisting}[caption=deleteDataメソッド,label=deleteData]
+// DBtableの中身の削除
+public static void deleteData() {
+	conn = null;
+	PreparedStatement pStmt = null;
+	try{
+	    Class.forName("org.sqlite.JDBC");
+	    if(conn == null){
+			 conn = DriverManager.getConnection(connDB);
+			 conn.setAutoCommit(false);
+		}
+    	String sql = "delete from texts";
+    	pStmt = conn.prepareStatement(sql);
+   		pStmt.executeUpdate();
+	}catch{
+		・・・
+	}
+}
+\end{lstlisting}
+
+DBにデータを格納するためのinsertTextTabメソッドをソースコード\ref{insertTextTab}に示す．
+\begin{lstlisting}[caption=insertTextTabメソッド,label=insertTextTab]
+// tableに追加
+public static void insertTextTab(String line) {
+	PreparedStatement pStmt = null;
+	String sql;
+	try{
+		Class.forName("org.sqlite.JDBC");
+		if(conn == null){
+			 openConn();
+		}
+		sql = "insert into texts values(?, ?)";
+		pStmt = conn.prepareStatement(sql);
+		pStmt.setInt(1, id);
+		pStmt.setString(2, line);
+		pStmt.executeUpdate();
+		id++;
+	}catch{
+		・・・
+	}
+}
+\end{lstlisting}
+
+またこれらの動作のため，DBへのコネクションOPENとしてopenConnメソッド，CLOSEとしてcloseConnメソッド，COMMITとしてconComメソッドを新たに作成している．これらはTextDAO.javaとTextCon.javaのどちらからも利用される．
+
+\subsection{実行例}
+作成したDBへの格納プログラムが正しく動作しているかを確認するためにTest.javaを作成し，readTextFileメソッドを実行した．すると，data.dbという名前のDBが作成される．この中身を確認したところ，以下のように表示された．
+\begin{lstlisting}
+C:\Users\Owner>sqlite3 data.db
+SQLite version 3.28.0 2019-04-16 19:49:53
+Enter ".help" for usage hints.
+sqlite> .table
+texts
+sqlite> select * from texts;
+1|Hanako is a girl
+2|Hanako is a student
+3|student is a kind of human
+4|human is a kind of mammal
+5|Hanako has a hobby of playing video-games
+6|Hanako has a hobby of playing air-guitar
+7|Hanako studies philosophy
+8|Hanako loves Taro
+9|Taro is a boy
+10|Taro is a student
+11|Taro has a hobby of playing video-games
+12|Taro studies informatics
+13|Taro loves Jiro
+14|Taro has a pet named Jiro
+15|Jiro is a boy
+16|Jiro is a dog
+17|dog is a kind of mammal
+18|Jiro has a hobby of playing frisbee
+19|Jiro loves Hanako
+sqlite>
+\end{lstlisting}
+この結果はテキストファイルに含まれていたデータセットの内容と一致することから，作成したプログラムが正しく動作し，DBが作成できていることが確認できた．
+
+\subsection{考察}
+この課題は課題文の解釈の方法がいくつか考えられたため，どのようにDBを作成するかを考えるのにかなりの時間を要した．\\
+
+まず，DBの作成を行うため，データセットであるテキストファイルからどのようにDBを作成するかを考えた．この時大きく分けて2種類の作成方法がまず考えられた．それを以下に示す．
+\begin{enumerate}
+\item DBにデータセットと同様の内容を格納する．
+\item DBにUnifyで処理した検索文(変数を含む文章)とその出力結果を格納する．
+\end{enumerate}
+この2種類の考えは，課題文の解釈の違いによって考えられた．\par
+「MatchingクラスまたはUnifyクラスを用い，パターンで検索可能な簡単なデータベースを作成せよ．」という課題であるが，MatchingクラスやUnifyクラスをどの段階で使用するのかが明確に判断できず，DB作成後にMatchingクラスやUnifyクラスを利用するのか，MatchingクラスやUnifyクラスを利用して得られた結果をDBに格納するのかが分からなかったからである．MatchingクラスやUnifyクラスを使用する前にDBを作成する場合は1.\ のDBの形式にし，MatchingクラスやUnifyクラスを使用した後にDBを作成する場合は2.\ のDBの形式にすると考えられたが，どちらを採用するかがかなり難しい判断であった．\\
+
+さらに，DBをデータセットと同様の内容とした場合はさらに3種類の作成方法が考えられた．それを以下に示す．
+\begin{enumerate}
+\item DBに一文をそのままtext型として格納する．
+\item DBに一文を各単語毎に分割して格納する．
+\item DBで動詞毎にtableを作成し，それぞれの動詞で分類分けした状態で主語とそれ以外(動詞も除く)に分割して格納する．
+\end{enumerate}
+DBをより効率よく利用する方法を考え，これらのような格納方法を考えた．\\
+
+DBの作成方法に複数の方法が考えられたが，これは必須課題の1つ目であり，作成期間も一週間と短く，出来るだけ早く方針を固めなければならない．そこで私たちの班では，DBのこれ以降の課題との関係性や検索方法と課題文の内容にどれだけ沿うことが出来るかなどを考慮してプログラムを作成することとした．\\
+
+ここで，先に挙げたDBの格納方法とその具体例を表形式にまとめ，それぞれの利点と欠点を上げていく．\par
+1つ目は「DBに一文をそのままtext型として格納する．」方法である．\\
+
+\begin{table}[htb]
+  \begin{center}
+    \caption{DB例1(table:texts)}
+    \begin{tabular}{|c|c|} \hline
+      uuid(int) & line(text) \\ \hline \hline
+      1 & Hanako is a girl \\ \hline
+      2 & Hanako is a student \\ \hline
+      ・・・ & ・・・ \\ \hline
+	  8 & Hanako loves Taro \\ \hline
+    \end{tabular}
+    \label{tab:ex1}
+  \end{center}
+\end{table}
+
+表\ref{tab:ex1} の利点は，DBへの格納が単純であるため比較的楽にプログラムすることが出来る点にある．また，Unify.java等がデータを受け取るときにテキストファイルを読み込む形と殆ど変わらずにプログラム出来るため，改良の手間が少し減る点もあげられる．\par
+これに対し欠点は，格納方法がテキストファイルと同様の形式であるため，DBへ格納した恩恵をあまり得られない点にある．データの削除や追加はテキストファイルよりも楽に行うことが出来るが，検索に関しての手間はテキストファイルと変わらないため，あまり意味のないDBになってしまう可能性も考えられる．\\
+
+%\vspace{5mm}
+2つ目は「DBに一文を各単語毎に分割して格納する．」方法である．\\
+
+
+\begin{table}[htb]
+  \begin{center}
+    \caption{DB例2(table:texts)}
+    \begin{tabular}{|c|c|c|c|c|} \hline
+      uuid(int) & namea(text) & nameb(text) & namec(text) & named(text) \\ \hline \hline
+      1 & Hanako & is & a & girl \\ \hline
+      2 & Hanako & is & a & student \\ \hline
+      ・・・ & ・・・ & ・・・ & ・・・ & ・・・ \\ \hline
+	  8 & Hanako & loves & Taro & NULL \\ \hline
+    \end{tabular}
+    \label{tab:ex2}
+  \end{center}
+\end{table}
+
+表\ref{tab:ex2} の利点は，検索がDBを用いて行うことが出来るために，マッチング操作にかかる手間が大幅に減ることがあげられる．\par
+これに対し欠点は，一文に含まれている単語の数が一定でないため，上の表のようにフィールドによってはNULLになってしまいDBへの格納が複雑になることがあげられる．一文が分割される単語数もテキストファイルに含まれる行数も可変であるため，可変長二次元配列を活用して格納を行わなければならなくなってしまい，かなり複雑なプログラムとなることが考えられる．またこの格納方法では，検索時にDB参照によって検索結果を得られるため，使用するように指定されているMatchingクラスやUnifyクラスが利用できなくなってしまうことも欠点としてあげられる．\\
+
+3つ目は「DBで動詞毎にtableを作成し，それぞれの動詞で分類分けした状態で主語とそれ以外(動詞も除く)に分割して格納する．」方法である．\\
+
+\begin{table}[htb]
+  \begin{center}
+    \caption{DB例3(table:iss)}
+		\begin{tabular}{|c|c|c|} \hline
+	   uuid(int) & namea(text) & nameb(text) \\ \hline \hline
+		  1 & Hanako & a girl \\ \hline
+		  2 & Hanako & a student \\ \hline
+		  ・・・ & ・・・ & ・・・ \\ \hline
+	 \end{tabular}
+    \label{tab:ex3}
+  \end{center}
+\end{table}
+
+
+\begin{table}[htb]
+  \begin{center}
+    \caption{DB例3(table:lovess)}
+	\begin{tabular}{|c|c|c|} \hline
+	 uuid(int) & namea(text) & nameb(text) \\ \hline \hline
+	8 & Hanako & Taro \\ \hline
+	・・・ & ・・・ & ・・・ \\ \hline
+	\end{tabular}
+    \label{tab:ex4}
+  \end{center}
+\end{table}
+
+表\ref{tab:ex3}, 表\ref{tab:ex4} の利点は，tableを複数作成することで，テキストファイルには出来ない単語毎の分類が可能になるので，DBを利用する利点が明確になることである．同時に，分類分けが行われることで検索時のマッチング操作にかかる手間が減ることも考えられる．\par
+これに対し欠点は，分割を行って動詞毎にtableを作成するため，DAOが非常に複雑になってしまうことがあげられる．実際にこのプログラムは始めに作成したが，デバッグ作業にかなりの時間を要することになった．また各table毎に検索を行うため，Unify.javaに引数としてデータを与える際に工夫が必要になることも，実行効率は良いが実装効率が悪いことを示している．さらに調べたところ，tableとして指定できない特定の文字列が存在し，それがisが該当していると分かった．そのため動詞毎でtableを作成する場合は全ての動詞に's'を付けるなどの工夫が必要になることが課題を解く中で分かった．これも，プログラムが複雑になる原因の一つとして考えられる．\\
+
+最後に，「DBにUnifyで処理した検索文(変数を含む文章)とその出力結果を格納する．」方法である．\\
+
+\clearpage
+
+\begin{table}[htb]
+  \begin{center}
+    \caption{DB例4(table:answers)}
+    \begin{tabular}{|c|c|c|} \hline
+      uuid(int) & question(text) & answer(text) \\ \hline \hline
+      1 & ?x has a hobby of playing video-games & Hanako, Taro \\ \hline
+      2 & Hanako is a ?y & girl \\ \hline
+      ・・・ & ・・・ & ・・・ \\ \hline
+	  8 & ?x is a boy, ?x loves ?y & (Taro, Jiro), (Jiro, Hanako) \\ \hline
+    \end{tabular}
+    \label{tab:ex5}
+  \end{center}
+\end{table}
+
+表\ref{tab:ex5} の利点は，必須課題で求めらているプログラムに最も近いと考えられるプログラムであることがあげられる．また，データセットとDBの役割の違いがはっきりするため，テキストファイルとDBを有効に活用できている部分も利点と考えられる．\par
+これに対し欠点は，格納のためのプログラムが複雑になってしまうことと，発展課題を行う際に追加と削除のデータがDBに反映させられないことがあげられる．DBを利用することで，テキストファイルよりも追加や削除が簡単になるが，この方法で実装を行うとこれが出来ない．それにより追加や削除命令に応じてテキストファイルを直接操作することになるが，これは非常に手間がかかり効率も悪い．\\
+
+これらの利点と欠点，そして実装期間を考え，私たちの班は表\ref{tab:ex1}の方法を採用することとした．これらを踏まえ作成したものが先に述べたプログラムである．そのため，結果としてDBはテキストファイルと形式を殆ど変えることなく作成することとなった．ただしこのとき，改行はDBに含まないことにしたため，DBでは空行は含まれずに格納される．\par
+これにより実装を分担して行う今回のような課題は実装方法が複雑にならなかったことから大幅に時間をかけることなくプログラムを作成することが出来た．\\
+
+\section{必須課題2-2}
+\begin{screen}
+  自分たちの興味ある分野の知識についてデータセットを作り，上記2-1で実装したデータベースに登録せよ．また，検索実行例を示せ．どのような方法でデータセットを登録しても構わない．
+\end{screen}
+必須課題2-2は実装を伴わない課題であるため，実装以外を記述する．
+
+\subsection{手法}
+私たちの班では，必須課題2-1でDBを表\ref{tab:ex1}のように作成したため，与えられたテキストファイルと同様の形式でデータセットを作成した．この課題は私が担当した．\par
+興味のある分野については，ラグビーワールドカップが日本で開催され日本チームが活躍していたことから，ラグビーについて調べ以下のようにデータセットを作成した．\\
+
+\begin{table}[htb]
+  \begin{center}
+    \caption{作成したデータセット(rugby.txt)}
+    \begin{tabular}{|l|} \hline
+      Rugby is a sport \\ 
+      RugbyWorldCup is held in Japan \\
+       \\ 
+      Japan is ranked 8th in the world \\ 
+	  Japan won against Russia \\
+		・・・ \\
+		England lose to SouthAfrica \\
+		 \\
+		JamieJoseph is the coach of Japan \\
+		YuuTamura scored 51 points \\
+		・・・ \\
+		MichaelLeitch tackled 44 times \\
+		 \\
+		England is ranked 1st in the world \\
+		NewZealand is ranked 2nd in the world \\
+		Wales is ranked 3rd in the world \\ \hline
+    \end{tabular}
+    \label{tab:rugby}
+  \end{center}
+\end{table}
+
+\subsection{実行例}
+まず，必須課題2-1と同じ要領で作成したデータセットからDBを作成した．DBの名前や読み込むテキストファイルについてはプログラムを直接書き換えることで実行した．その結果作成されたDBの中身を出力した結果を以下に示す．\\
+
+\begin{lstlisting}
+C:\Users\Owner>sqlite3 rugby.db
+SQLite version 3.28.0 2019-04-16 19:49:53
+Enter ".help" for usage hints.
+sqlite> .table
+texts
+sqlite> select * from texts;
+1|Rugby is a sport
+2|RugbyWorldCup is held in Japan
+3|Japan is ranked 8th in the world
+4|Japan won against Russia
+5|Japan won against Ireland
+6|Japan won against Samoa
+7|Japan won against Scotland
+8|England lose to SouthAfrica.
+9|JamieJoseph is the coach of Japan
+10|YuuTamura scored 51 points
+11|KotaroMatsushima scored 25 points
+12|KenkiFukuoka scored 20 points
+13|PieterLabuschagne tackled 68 times
+14|JamesMoore tackled 67 times
+15|ShotaHorie tackled 58 times
+16|KazukiHimeno tackled 50 times
+17|KeitaInagaki tackled 48 times
+18|LukeThompson tackled 47 times
+19|MichaelLeitch tackled 44 times
+20|England is ranked 1st in the world
+21|NewZealand is ranked 2nd in the world
+22|Wales is ranked 3rd in the world
+sqlite>
+\end{lstlisting}
+
+これは作成したテキストファイルと同様の内容であることが確認できた．\\
+
+次に，このDBを用いて検索を行った結果を以下に示す．今回のデータセットでは，Unifyクラスの比較方法は使用しないため，Matchingクラスにmainメソッドを作成し，そこからプログラムを呼び出しテキストファイルからDBへの値の格納・マッチングを行う．これらのプログラムの連動関係に関しては増田君がアーキテクチャを考えたため，そちらのレポートを参考にされたい．\\
+
+以下にMatchingクラスのmainメソッドを用いて作成したデータセット読み出して動作させた場合の検索実行例を示す．\\
+
+\begin{lstlisting}
+C:・・・>javac -encoding UTF-8 -cp sqlite-jdbc-3.21.0.jar;. Matching.java
+C:・・・>java -cp sqlite-jdbc-3.21.0.jar;. Matching "Rugby is a ?x"
+Successfully started
+targetData = Rugby is a ?x
+検索結果を取得
+answer = sport
+C:・・・>java -cp sqlite-jdbc-3.21.0.jar;. Matching "Japan is ranked ?y in the world"
+Successfully started
+targetData = Japan is ranked ?y in the world
+検索結果を取得
+answer = 8th
+C:・・・>java -cp sqlite-jdbc-3.21.0.jar;. Matching "Japan won against ?z"
+Successfully started
+targetData = Japan won against ?z
+検索結果を取得
+answer = Russia
+answer = Ireland
+answer = Samoa
+answer = Scotland
+C:・・・>
+\end{lstlisting}
+
+作成したデータセットと比較しても，正しい結果が得られていることが確認できたので，DBから受け取った値と検索文との比較検索が正しく行われ，正確な結果が得られていることが分かった．
+
+\subsection{考察}
+データセットの登録方法はどのような方法でも良いと記述されていたため，テキストファイルに直接書き込む形で作成を行った．記述に際しては，今回は複雑になりすぎないようMatchingクラスを利用してマッチングを行うことを考え，似たような語彙や記述が入るように工夫した．また，国名や人名はスペースを空けると別の語として扱われてしまうため，これを防ぐためスペースを空けずに記述することとした．しかし，今回のデータセットでは中々解(answer)が複数になる結果が得られるようなデータセットにならなかったため，今後データセットを作成する際には解が複数になるような可能性も多く考えられるようなデータセットを選択したい．また今回のデータセットでも，選手のポジション等を利用して作成すればよりよいデータセットにすることが出来たのではないかと実行を行って感じた．\\
+
+形式は必須課題2-1と同じであるため，DBへの格納等はテキストファイルが変わっても正しく動作することも確認できた．また今回は読み込むテキストファイルやDBを変更する場合は直接プログラムを書き換える必要がある．これは入力の操作でこれらを変更できたりするようプログラムを書き加えることで，プログラムを直接触ることなく読み取りファイルの変更が可能になると考えたが，実装する時間を取ることが出来なかった．しかしプログラム方法自体は比較的容易だと考えられるので，時間に余裕があれば取り組んでみたいと考えた．
+
+\section{発展課題2-3}
+\begin{screen}
+  上記システムの GUI を作成せよ. \\
+・データの追加，検索，削除を GUI で操作できるようにすること. \\
+・登録されたデータが次回起動時に消えないよう, 登録されたデータをファイルへ 書き込んだり読み込んだりできるようにすること.
+\end{screen}
+私は登録されたデータが次回起動時に消えないよう，登録されたデータをファイルへ書き込むことが出来るようにするためのメソッドの作成と，GUIからのDBアクセスのために作成したDao.javaの実装を行った．
+
+\subsection{手法}
+必須課題2-1で，テキストファイルからデータセットを読み込むときに利用したTextCon.javatとTextDAO.javaを利用して新しい機能を追加した．追加したものは以下のようになっている．
+
+\begin{enumerate}
+\item GUIからの命令で書き換えが行われたDBから，データを取得する．
+\item DBから取得したデータを，テキストファイルに書き込む．
+\end{enumerate}
+これらの実装を私が担当した．
+
+\subsection{実装}
+書き換え終了後にDBからその内容を取得するメソッドgetDBData，取得したデータをテキストファイルに書き戻すメソッドwriteTextFileの作成を行った．それぞれのメソッドは，getDBDataメソッドがTextDAO.javaに，writeTextFileメソッドがTextCon.javaに含まれている．\\
+
+取得したデータをテキストファイルに書き戻すメソッドwriteTextFileの実装をソースコード\ref{writeTextFile}に示す．
+\begin{lstlisting}[caption=writeTextFileメソッド,label=writeTextFile]
+public void writeTextFile() throws FileNotFoundException{
+	try {    // ファイル読み込みの操作
+		・・・
+		// データの取得【DB】
+		TextData = TextDAO.getDBData();
+		TextDAO.conCom();
+		// ファイルへの書き込み
+		for (int i = 0 ; i < TextData.size() ; i++){
+			out.println(TextData.get(i));
+		}
+		out.close();        // ファイルを閉じる
+	} catch (IOException e) {
+		e.printStackTrace();
+	}
+	TextDAO.closeConn();
+}
+\end{lstlisting}
+
+DBに格納されているデータを取得するメソッドgetDBDataの実装をソースコード\ref{getDBData}に示す．
+\begin{lstlisting}[caption=getDBDataメソッド,label=getDBData]
+// DBのデータを取得
+public static ArrayList<String> getDBData() {
+	conn = null;
+	ArrayList<String> DBList = new ArrayList<String>();
+	PreparedStatement pStmt = null;
+	ResultSet rs = null;
+	String sql;
+	try{
+		Class.forName("org.sqlite.JDBC");
+		if(conn == null){
+			conn = DriverManager.getConnection(connDB);
+			conn.setAutoCommit(false);
+		}
+		sql = "select line from texts";
+		pStmt = conn.prepareStatement(sql);
+		rs = pStmt.executeQuery();
+		while (rs.next()) {
+			String text = rs.getString("line");
+			DBList.add(text);
+		}
+		rs.close();
+		pStmt.close();
+	}catch{
+	・・・
+	}
+	return DBList;
+}
+\end{lstlisting}
+
+これらに加え，増田君が作成してくれたたDBへのアクセスを行うDao.javaのプログラムに対して実際の動作が正しく行われるように修正をしたり，Presenter.javaのDBアクセス指令の改良やデバッグなども行った．
+
+\subsection{実行例}
+GUIの作成は青山君が作成したため，ここでは私が実装したファイルの書き込み部分のみに着目して実行例を確認する．必須課題2-1で作成したDB作成テスト時に使用したTest.javaを用い，テキストファイルを読み込んでDBに格納し，値の更新や削除を行った後変更したDBからテキストファイルへと上書きまでの動作が正しく行われたかを確認する．使用するデータセットは，与えられたdataset\_example.txtとした．
+
+dataset\_example.txtを操作するためのText.javaをソースコード\ref{dataset_example}に示す．
+\begin{lstlisting}[caption=Text.javaのmainメソッド,label=dataset_example]
+public static void main(String arg[]){
+	// DBの作成
+	Presenter presenter = new Presenter(new View());
+	presenter.start();
+	// DBの書き換え
+	presenter.addData("Mike is a boy");
+	presenter.deleteData(1);
+	presenter.addData("Mike loves Hanako");
+	presenter.deleteData(5);
+	presenter.addData("Mike has a hobby of playing tennis");
+	presenter.deleteData(20);
+	presenter.addData("Mike is a boy");
+	// テキストファイルへの上書き
+	presenter.finish();
+}
+\end{lstlisting}
+
+addDataでデータの追加を行い，deleteDataでデータの削除を行う．これらはそれぞれ引数にStringとintを持つ．またstart()でテキストファイルからDBへの書き込みを，finish()でDBからテキストファイルへの上書きを行う．これらはPresenterを経由してからDAOへと命令が伝えられる．これを実行するが，このとき変更された内容は繰り返し利用され，2回目の実行時には1回目の変更内容が反映された状態で新しくプログラムの更新を行わなければならない．それを踏まえ実装を行った実行結果が以下のようになる．\\
+
+上のTest.javaの内容を3回繰り返して得られた結果を以下に順に示す．この時示すのは，結果が反映されたテキストファイルとする．\\
+
+\begin{lstlisting}[caption=実行前のdataset\_example.txt,label=1]
+Hanako is a girl
+Hanako is a student
+student is a kind of human
+human is a kind of mammal
+Hanako has a hobby of playing video-games
+Hanako has a hobby of playing air-guitar
+Hanako studies philosophy
+Hanako loves Taro
+
+Taro is a boy
+Taro is a student
+Taro has a hobby of playing video-games
+Taro studies informatics
+Taro loves Jiro
+Taro has a pet named Jiro
+
+Jiro is a boy
+Jiro is a dog
+dog is a kind of mammal
+Jiro has a hobby of playing frisbee
+Jiro loves Hanako
+\end{lstlisting}
+
+\begin{lstlisting}[caption=1回実行後のdataset\_example.txt,label=2]
+Hanako is a student
+student is a kind of human
+human is a kind of mammal
+Hanako has a hobby of playing air-guitar
+Hanako studies philosophy
+Hanako loves Taro
+Taro is a boy
+Taro is a student
+Taro has a hobby of playing video-games
+Taro studies informatics
+Taro loves Jiro
+Taro has a pet named Jiro
+Jiro is a boy
+Jiro is a dog
+dog is a kind of mammal
+Jiro has a hobby of playing frisbee
+Jiro loves Hanako
+Mike loves Hanako
+Mike has a hobby of playing tennis
+Mike is a boy
+\end{lstlisting}
+
+\begin{lstlisting}[caption=2回実行後のdataset\_example.txt,label=3]
+student is a kind of human
+human is a kind of mammal
+Hanako has a hobby of playing air-guitar
+Hanako loves Taro
+Taro is a boy
+Taro is a student
+Taro has a hobby of playing video-games
+Taro studies informatics
+Taro loves Jiro
+Taro has a pet named Jiro
+Jiro is a boy
+Jiro is a dog
+dog is a kind of mammal
+Jiro has a hobby of playing frisbee
+Jiro loves Hanako
+Mike loves Hanako
+Mike has a hobby of playing tennis
+Mike is a boy
+Mike loves Hanako
+Mike has a hobby of playing tennis
+Mike is a boy
+\end{lstlisting}
+
+\begin{lstlisting}[caption=3回実行後のdataset\_example.txt,label=4]
+human is a kind of mammal
+Hanako has a hobby of playing air-guitar
+Hanako loves Taro
+Taro is a student
+Taro has a hobby of playing video-games
+Taro studies informatics
+Taro loves Jiro
+Taro has a pet named Jiro
+Jiro is a boy
+Jiro is a dog
+dog is a kind of mammal
+Jiro has a hobby of playing frisbee
+Jiro loves Hanako
+Mike loves Hanako
+Mike has a hobby of playing tennis
+Mike is a boy
+Mike loves Hanako
+Mike is a boy
+Mike is a boy
+Mike loves Hanako
+Mike has a hobby of playing tennis
+Mike is a boy
+\end{lstlisting}
+
+\subsection{考察}
+Test.javaでは，4つの文の追加と3つの文の削除を行っている．このことから実行結果を確認すると，実行回数が増えるたびにテキストファイルに入っている文章の数が一つずつ増えていることが確認できる．また追加ではMikeに関する情報を加えているが，実行回数が増えるたびにMikeに関する文章の数が増えていることも確認できる．これらのことから，このプログラムは前回実行時の内容を保持したまま正しく次の実行が行えていることが分かった．\par
+DB格納時に空行は飛ばして格納するようにしたことから，DBの内容をテキストファイルに格納する場合も空行は残らずに上書きが行われることも分かった．さらに，データの削除はDB格納時に各文章に与えられるid番号によって行われるが，実行するたびにテキストファイルの一番上にある行が消えていることから，DBに格納が行われるたびに与えられるid番号が正しく与え直され，その時のテキストファイルの一文目が削除されてることが確認できた．\\
+
+発展課題ではあったものの，私が担当した範囲は必須課題2-1で作成したプログラムとDBに対しての操作を行うため，実装方法自体は大きく悩むことなく取り組むことが出来た．また，GUIとの連動に必要なメソッドはPresenter.javaによって操作が行われるため，私自身はGUI本体を操作することなくプログラムを動作させることが出来た．これはプログラム作成時のアーキテクチャを明確にしていたことが影響しているため，プログラムを作成する前にアーキテクチャを明確にすることの大切さを強く理解した課題となった．
+
+\section{DB関連についての全体の考察}
+ここまで，各課題に対する考察を行ってきたため，ここからは私が担当したDB全体に対する考察を行う．\\
+
+今回の課題はDBを作成するとの課題であったことから，プログラミング応用の講義で利用したsqliteを使用してDBを作成することを考えた．課題の要件を満たすようなDBの形として，最終的に表\ref{tab:ex1}の格納方法を使用した．この理由としては，実装難度と実装期間と発展課題でデータの追加や削除を行う必要があると考えたため，DBを利用するとこれらの実装が行えると考えたからである．しかしこれでは，動作が終了するとDBで読み込んだ内容を最終的にテキストファイルへと保存することになり，DBはデータを保存するという意味では機能しなくなってしまう．DBは本来テキストファイルよりもデータの保存に適したものであるのにも関わらず，DBをテキストファイルのキャッシュのように使用することになってしまい，これではDBを利用する利点が無くなってしまうと考えられた．\par
+さらに，DBはtableやカラムを持つことが出来ることもテキストファイルよりも保存方法に幅がある．しかしこの格納方法ではほとんどテキストファイルと同様の保存方法になっており，これもDBを有効に活用できていないと感じられる原因となった．\\
+
+これらを解決するためにも，単語毎で分割し動詞毎でtableを作成したり，単語毎でフィールドに追加していく方法も考えた(必須課題2-1考察参照)．しかしこの方法を利用すると，検索時にMatchingクラスやUnifyクラスを利用せずとも，変数が単語の分割された何個目に含まれているかという情報と各単語の内容で比較を行うことで検索が出来てしまうと考えられる．これでは課題の内容を満たしているとは言えないため，この方法は使用しないことを決めた．\\
+
+MatchingクラスやUnifyクラスの利用の観点から考えると，先に検索を行い，その際の検索文とその答えをDBに格納する方法が課題内容も満たしDBも活用できているため最も良いようにも考えられる．しかしこれでは発展課題のデータの追加や削除がDBで行えないため容易には実装出来なくなってしまう．追加や削除が行われたデータセットを最終的に保存しなければならないことを考えると，この方法も課題内容を満たさないと考えた．\\
+
+このような考えから，今回は表\ref{tab:ex1}のように実装を行ったが，やはりDBを活用できているようにはあまり感じられない結果となった．そのため，時間に余裕があれば他の方法での実装も検討してみたいと考えた．例えば，検索文とその答えの格納をDBに行う場合は，初めにテキストファイルを読み込んだ際にその内容をListなどに格納しておき，検索や追加，削除はそのListを利用して行うようにし，最終的には変更されたListの内容をテキストファイルに上書きする形を取ることで，発展課題の内容も満たすことが出来るのではないかと考えた．\par
+また，データの追加や削除と課題にあったが，この「データ」とはデータセットを指すのか，検索文(パターン)を指すのかも明確に指定されていないように感じた．今回私たちの班は「データ」をデータセットと考えたが，パターンと考えて実装を行うことも可能であると考えられた．そのため，検索文(パターン)とその答えを格納するDBの作成は，課題の内容をより満たしたプログラムの作成となるのではないかとも考えた．\\
+
+ここまではDBの定義の仕方について考察したが，ここからは実際に作成したDBの実装について考察する．\\
+
+DBの作成でまず工夫した点は，id番号を引数で指定することなく決定することが出来るようにしたことである．テキストファイルから読み込んで一文ずつDBに格納する際には1で初期化された変数を順にインクリメントすることで実現できる．しかし追加では別のDAOからDBにアクセスするため変数を取得することが難しい．そこでtableのなかで最大のidを取得する関数max(id)を利用するメソッドgetNoを作成することで今使用されている最大のid番号を取得し，それを1増やした値を追加されたデータのid番号とした．\\
+
+また，作成されたDBの扱い方についても工夫を行った．初めに作成したプログラムでは，同じtable名を作成しようとするとエラーが発生するため，一度実行して作成したDBは次の実行の前に自分で削除しなければならなかった．これを解決するため，まず作成したDBを実行終了と同時に消すことを考えた．しかしsqliteではDBそのものを消す命令が存在していなかったため，この方法は実現させることが出来なかった．\par
+次に，実行終了時にDBではなくtableを消すことを考えた．これはdrop tableという命令で可能であることが分かったので，これを実装したところ，二回目以降の実行ではtableが消えているためエラーが発生しなくなった．しかしこれでは，1回目の実行時に別のmainで実行して残っていたプログラムが存在しているとエラーが発生することが分かった．また，実行終了時にtableを消してしまうため，実行終了時にDBにはデータが残らなくなってしまう．そのため，この方法よりも良い実装を考えた．\par
+その結果考えたものが，実行開始時にtableを消去する方法である．しかしこれはtableが存在しなかった時にエラーが発生してしまう．そのためtableの存在の有無を判定しようと調べたところ，tableが存在していないときにだけtableを新しく作成することが出来ることが分かった．ここから，tableを作成した後にその中身を削除することを考えた．そこでdeleteDataメソッドを作成し，tableの中身を全て削除してからテキストファイルのデータを書き込むことが出来るようになった．よってDBの有無にかかわらず，正しく読み込んだテキストファイルの内容を格納することが出来るプログラムを作成することが出来た．\par
+これは求めたい結果が得られるまでにかなり遠回りをしてしまったが，プログラム改良のプロセスを体感できたように感じた．\\
+
+今回作成したDBでは，追加の際に既に入っているデータをもう一度追加すると，同一内容でもはじくことなく新しいデータとして格納してしまう．これではデータセットの内容の重複が認められてしまうことになるため，同一内容の文章ははじくための処理を入れるべきだった．MatchingクラスやUnifyクラスを用いれば内容が一致しているかどうかの判断は可能だと感じた．今回は時間がなくできなかったが，追加処理を行う際は現在入っているデータと追加文が重複しているかを確認し，重複していないときにのみデータへの追加を行うように実装したい．\\
+
+また，Moodleの質問掲示板の返信から，そもそも既存のDBを利用せずに課題を解かなければならなかったことが分かった．そのため，今までの考え方を大きく変え自作DBの実装方法を考えなければならなかったが，今回は時間がなく考えることが出来なかった．自作DBの実装方法はまだどのように行えばよいのか明確に分かっていないため，今後のためにもどのような方法が利用できるのか考えていきたい．
+
+\section{感想}
+今回は，実装期間が一週間と短かったため，実現させたかったことをすべて実現させることが出来なかったのが残念だった．また，講義の時間以外に全員で集まることが中々出来なかったため，それぞれの考えを統一するのに時間がかかってしまった．そのため，講義の時間などを利用して積極的に話し合いをし，全員の考えと方向性を統一させることが大切であると感じた．\par
+また今回は全員で一つのプログラムを分担して実装したため，それぞれの担当箇所を接続する際にエラーが発生することが非常に多かった．その上，お互いが別の部分を担当していることから互いの担当範囲について詳しくないため，デバッグ作業にかなりの時間を要してしまった．プログラムを分担して作成する大変さも感じた．\par
+しかしそのため，お互いに協力したりそれぞれで調べるなど，課題に対する知識は増えたように感じられる．特に私はDBに関連するプログラムの作成を行ったため，DBに関連する知識が以前よりも増えたと感じられる．DBの知識を身に着けることが出来たのはとても良かった．
+
+% 参考文献
+\begin{thebibliography}{99}
+\bibitem{hanako} プログラミング応用で作成したDAO等のプログラム
+\bibitem{notty} RUGBY WORLD CUP, \url{https://www.rugbyworldcup.com/} （2019年10月29日アクセス）.
+\bibitem{notty} DBOnline SQLite入門, \url{https://www.dbonline.jp/sqlite/} （2019年10月29日アクセス）.
+\bibitem{notty} memocarilog, \url{https://memocarilog.info/php-mysql/5355} （2019年10月29日アクセス）.
+\bibitem{notty} プログラミングマガジン　【デザインパターン】DAO/DTOパターン, \url{www.code-magagine.com/?p=1311} （2019年10月29日アクセス）.
+\bibitem{notty} CMOクラウドアカデミー　データベースの用語を理解しよう 「テーブル」「レコード」「カラム」「フィールド」とは？, \url{https://academy.gmocloud.com/know/20160425/2259} （2019年10月29日アクセス）.
+
+\end{thebibliography}
+
+\end{document}
