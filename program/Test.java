@@ -1,4 +1,4 @@
-
+package Work2ver2;
 /*
  * DB関連のプログラムのみを動作確認するためのプログラム
  * 具体的には、
@@ -29,7 +29,7 @@ class Test {
 		presenter.searchData("Taro studies ?x");
 
 		presenter.fetchData();
-		
+
 		presenter.finish();
 
 	}

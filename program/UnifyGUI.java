@@ -1,9 +1,22 @@
-import java.util.*;
+package Work2ver2;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.List;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-import java.awt.event.*;
+
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 public class UnifyGUI extends JFrame implements ActionListener {
     View view;
@@ -13,7 +26,7 @@ public class UnifyGUI extends JFrame implements ActionListener {
     List<TextModel> textList;
     DefaultListModel lModel;
     JList listPanel;
-    List<TextModel> searchList;
+    List<String> searchList;
     DefaultListModel sModel;
     JList searchPanel;
 
@@ -31,7 +44,7 @@ public class UnifyGUI extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addWindowListener(new myListener());
         setLayout(new FlowLayout());  // 既定はBorderLayout．設定しないとmainPanelがmaximumSizeに関わらず画面いっぱいに表示される．
-        
+
         JPanel mainPanel = new JPanel();
         int mainWidth = 300;
         int mainHeight = 400;
@@ -44,14 +57,14 @@ public class UnifyGUI extends JFrame implements ActionListener {
         int inHeight = 70;
         inPanel.setMaximumSize(new Dimension(inWidth, inHeight));
         inPanel.setPreferredSize(new Dimension(inWidth, inHeight));
-        
+
         sModel = new DefaultListModel();
         searchPanel = new JList(sModel);
         JScrollPane searchSp = new JScrollPane();
         searchSp.getViewport().setView(listPanel);
         // searchSp.setMaximumSize(new Dimension(inWidth, mainHeight - inHeight));
         // searchSp.setPreferredSize(new Dimension(inWidth, mainHeight - inHeight));
-        
+
         lModel = new DefaultListModel();
         listPanel = new JList(lModel);
         JScrollPane listSp = new JScrollPane();
@@ -91,15 +104,16 @@ public class UnifyGUI extends JFrame implements ActionListener {
 
         if (cmd.equals("検索")) {
             presenter.searchData(arg);
-            searchList = view.getList();
-            for (TextModel text : searchList) {
+            searchList = view.getSr();
+            for (String text : searchList) {
                 sModel.addElement(text);
             }
 
         } else if (cmd.equals("追加")) {
             presenter.addData(arg);
+            lModel.clear();
             presenter.fetchData();
-            textList = view.getList();
+            textList = view.getRl();
             for (TextModel text : textList) {
                 lModel.addElement(text);
             }
@@ -122,7 +136,7 @@ public class UnifyGUI extends JFrame implements ActionListener {
             presenter = new Presenter(view);
             presenter.start();
             presenter.fetchData();
-            textList = view.getList();
+            textList = view.getRl();
             for (TextModel text : textList) {
                 lModel.addElement(text);
             }
@@ -135,14 +149,20 @@ public class UnifyGUI extends JFrame implements ActionListener {
 }
 
 class View implements ViewInterface {
-    List<TextModel> list;
+    List<String> sr;
+    List<TextModel> rl;
 
     View() {
-        list = new ArrayList<>();
+        sr = new ArrayList<>();
+        rl = new ArrayList<>();
     }
 
-    List<TextModel> getList() {
-        return list;
+    List<String> getSr() {
+        return sr;
+    }
+
+    List<TextModel> getRl() {
+        return rl;
     }
 
     // データベース初期化完了メソッド
@@ -161,8 +181,8 @@ class View implements ViewInterface {
     }
 
     // 検索結果反映メソッド
-    public void showSearchResult(List<TextModel> resultList) {
-        list = resultList;
+    public void showSearchResult(List<String> resultList) {
+        sr = resultList;
         System.out.println("検索結果を取得");
     }
 
@@ -173,7 +193,7 @@ class View implements ViewInterface {
 
     // 一覧表示メソッド
     public void showResultList(List<TextModel> resultList) {
-        list = resultList;
+        rl = resultList;
         System.out.println("一覧を取得");
     }
 

@@ -1,22 +1,22 @@
+package Work2ver2;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 // DaoやTextDAOなどのModelクラスとViewクラスの接合部
 
 class Presenter {
 
-	// コンストラクタ
-	Presenter() {
-	}
-
     private Dao dao = new Dao();
     private TextCon textCon = new TextCon();
-    private Unify unify = new Unify();
+    //private Unify unify = new Unify();
     private ViewInterface view;
+    Matcher matching2;
 
     public Presenter(ViewInterface view) {
         this.view = view;
+        matching2 = new Matcher();
     }
 
     // GUI起動時にTextDAOに対してテキストファイルからデータベースへの読み込みを指示する
@@ -68,18 +68,22 @@ class Presenter {
     // あおしゅー：データ検索のアクションを受け取ったとき、このメソッドを呼んでください
     public void searchData(String targetData) {
         List<TextModel> resultList;
-        //List<String> resultList; //【DBからlineしか取得しない場合】
+        List<String> ValueList = new ArrayList<String>(); //【DBからlineしか取らない
+
         try {
             resultList = dao.FetchData();
+            System.out.println("targetData = " + targetData);
 
             // Unifyメソッドをここで呼ぶ
             if(resultList.size() == 0) {
                 view.showNoData();
             } else {
-                // for (TextModel text : resultList) {
-                //     System.out.println(text);
-                // }
-                view.showSearchResult(resultList);
+                for (TextModel text : resultList) {
+                     System.out.println(text);
+                     ValueList.add(matching2.matching(targetData, text.getTEXT()));
+                     System.out.println(matching2.matching(targetData, text.getTEXT()));
+                }
+                view.showSearchResult(ValueList);
                 //view.showSearchResult(); // ViewInterfaceとの整合性のため
             }
         } catch(SQLException e) {
