@@ -1,4 +1,4 @@
-package Work2ver2;
+
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,7 +10,8 @@ class Presenter {
 
     private Dao dao = new Dao();
     private TextCon textCon = new TextCon();
-    //private Unify unify = new Unify();
+    private Unify unify = new Unify();
+    //private Matcher matching = new Matcher();
     private ViewInterface view;
     Matcher matching2;
 
@@ -72,20 +73,42 @@ class Presenter {
 
         try {
             resultList = dao.FetchData();
-            System.out.println("targetData = " + targetData);
-
-            // Unifyメソッドをここで呼ぶ
+            String[] target = targetData.split(",", 0);
             if(resultList.size() == 0) {
                 view.showNoData();
+            } else if (target.length == 1) {
+            	System.out.println("targetData1 = " + targetData);
+            	for (int i = 0; i < resultList.size(); i++) {
+            		//System.out.println("☆" + (new Matcher()).matching(targetData,resultList.get(i).getTEXT()));
+            		String ans = (new Matcher()).matching(targetData,resultList.get(i).getTEXT());
+            		if (ans != " ") {
+            			ValueList.add(ans);
+            		}
+            	}
+            	/*
+            	for (TextModel textModel : resultList) {
+            		System.out.println("☆" + matching.matching(targetData,textModel.getTEXT()));
+            		if (matching.matching(targetData,textModel.getTEXT()) != " ") {
+            			ValueList.add(textModel.getTEXT());
+            		}
+            	}
+            	*/
+
             } else {
-                for (TextModel text : resultList) {
-                     System.out.println(text);
-                     ValueList.add(matching2.matching(targetData, text.getTEXT()));
-                     System.out.println(matching2.matching(targetData, text.getTEXT()));
-                }
-                view.showSearchResult(ValueList);
-                //view.showSearchResult(); // ViewInterfaceとの整合性のため
+            	// Unifyメソッドをここで呼ぶ
+            	for (TextModel text : resultList) {
+                    System.out.println("???" + text);
+                    ValueList.add(matching2.matching(targetData, text.getTEXT()));
+                    System.out.println(matching2.matching(targetData, text.getTEXT()));
+               }
             }
+
+            System.out.println("size = " + ValueList.size());
+            for (int i = 0; i < ValueList.size(); i++) {
+            	System.out.println(ValueList.get(i));
+            }
+            view.showSearchResult(ValueList);
+
         } catch(SQLException e) {
             view.showError(e.toString());
         } catch(ClassNotFoundException e) {

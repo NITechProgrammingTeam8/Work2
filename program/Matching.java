@@ -1,4 +1,4 @@
-package Work2ver2;
+
 /***
 Matching Program written
 
@@ -31,12 +31,9 @@ Unify は，ユニフィケーション照合アルゴリズムを実現し，
 
 ***/
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -46,37 +43,28 @@ import java.util.StringTokenizer;
 class Matching {
 
   public static void main(String arg[]){
-	if(arg.length != 2){
-	    System.out.println("Usgae : % Matching [string1] [string2]");
+	if(arg.length != 1){
+	    System.out.println("Usgae : % Matching [string1]");
 	}
 
-	//マッチした答えを格納するリスト
-	ArrayList<String> answer = new ArrayList<String>();
+	List<String> answer = new ArrayList<String>(); // 答えを格納
 
-	//textファイル処理
-	try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
-        String fileName = "dataset_example.txt"; // ファイル名指定
+	View view = new View(); // インスタンス？の作成
+	Presenter presenter = new Presenter(view);
 
-        // 文字コードUTF-8を指定してBufferedReaderオブジェクトを作る
-        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
+	presenter.start(); // DBの作成
 
-        // 変数lineに1行ずつ読み込むfor文
-        for (String line = in.readLine(); line != null; line = in.readLine()) {
-            //System.out.println(line);  // 1行表示
+	presenter.searchData(arg[0]); // 検索語入力
+	answer = view.getSr(); // 答えを取得
 
-            //1つ目の引数は入力, 2つ目の引数はtextの内容
-            //System.out.println((new Matcher()).matching(arg[0],line));
-        	//matchingした答えを格納
-            answer.add((new Matcher()).matching(arg[0],line));//ここでarg[0]引数1, arg[1]に引数2
-        }
-        in.close();  // ファイルを閉じる
-    } catch (IOException e) {
-        e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
-    }
+	//answer.add((new Matcher()).matching(arg[0],line));//ここでarg[0]引数1, arg[1]に引数2
 
 	//テスト出力用
 	for(int i = 0; i < answer.size(); i++) {
-		System.out.println(answer.get(i));
+		if(answer.get(i) != " ") {
+			System.out.println("★answer = " + answer.get(i));
+		}
+
 	}
 
 	//System.out.println((new Matcher()).matching(arg[0],arg[1]));	//ここでarg[0]引数1, arg[1]に引数2
@@ -113,8 +101,8 @@ class Matching {
 ***/
 
 	  public String matching(String string1,String string2){
-		//System.out.println(string1);
-		//System.out.println(string2);
+		//System.out.println("tagetData = " + string1);
+		//System.out.println("resultList = " + string2);
 
 		// 同じなら成功
 		if(string1.equals(string2)) return " ";
@@ -123,6 +111,8 @@ class Matching {
 		st1 = new StringTokenizer(string1);
 		st2 = new StringTokenizer(string2);
 
+		//System.out.println("トークンの数" + st2.countTokens());
+
 		// 数が異なったら失敗
 		if(st1.countTokens() != st2.countTokens()) return " ";
 
@@ -130,17 +120,17 @@ class Matching {
 		for(int i = 0 ; i < st1.countTokens();){
 		    if(!tokenMatching(st1.nextToken(),st2.nextToken())){
 			// トークンが一つでもマッチングに失敗したら失敗
-			return "gotaku";
+			return " ";
 		    }
 		}
 
 
 		// 最後まで O.K. なら成功
-		//System.out.println(vars.get(KeyList.get(0)));
+		//System.out.println("成功！" + vars.get(KeyList.get(0)));
 		return vars.get(KeyList.get(0));
 	  }
 
-	  boolean tokenMatching(String token1,String token2){
+	  public boolean tokenMatching(String token1,String token2){
 		//System.out.println(token1+"<->"+token2);
 		if(token1.equals(token2)) return true;
 		if( var(token1) && !var(token2)) return varMatching(token1,token2);
@@ -148,7 +138,7 @@ class Matching {
 		return false;
 	  }
 
-	  boolean varMatching(String vartoken,String token){
+	  public boolean varMatching(String vartoken,String token){
 		if(vars.containsKey(vartoken)){
 		    if(token.equals(vars.get(vartoken))){
 		    	//System.out.println(token);
@@ -165,7 +155,7 @@ class Matching {
 		return true;
 	  }
 
-	  boolean var(String str1){
+	  public boolean var(String str1){
 		// 先頭が ? なら変数
 		return str1.startsWith("?");
 	  }
