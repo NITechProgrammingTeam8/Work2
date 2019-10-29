@@ -1,4 +1,4 @@
-﻿import java.io.FileNotFoundException;
+import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +64,7 @@ class Presenter {
 
     // 検索データをデータベースから取得するように指示する
     // あおしゅー：データ検索のアクションを受け取ったとき、このメソッドを呼んでください
-    public void searchData(String targetData) {
+    public void searchData(String targetData) { // 複数の質問文は,区切りで与える
         List<TextModel> resultList;
         List<String> valueList = new ArrayList<String>(); //【DBからlineしか取らない
         List<String> resultStringList = new ArrayList<String>();  //String型

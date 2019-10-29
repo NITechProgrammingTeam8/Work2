@@ -1,28 +1,15 @@
-package Work2ver2;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import java.util.ArrayList;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
 
 public class UnifyGUI extends JFrame implements ActionListener {
     View view;
     Presenter presenter;
     JTextField text;
     JButton[] buttons;
+    JButton delButton;
     List<TextModel> textList;
     DefaultListModel lModel;
     JList listPanel;
@@ -43,59 +30,70 @@ public class UnifyGUI extends JFrame implements ActionListener {
         setBounds(100, 100, appWidth, appHeight);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addWindowListener(new myListener());
-        setLayout(new FlowLayout());  // 既定はBorderLayout．設定しないとmainPanelがmaximumSizeに関わらず画面いっぱいに表示される．
+        // setLayout(new FlowLayout()); //
+        // 既定はBorderLayout．設定しないとmainPanelがmaximumSizeに関わらず画面いっぱいに表示される．
 
         JPanel mainPanel = new JPanel();
-        int mainWidth = 300;
-        int mainHeight = 400;
-        mainPanel.setMaximumSize(new Dimension(mainWidth, mainHeight));
-        mainPanel.setPreferredSize(new Dimension(mainWidth, mainHeight));
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.PAGE_AXIS));
+        GridBagLayout layout = new GridBagLayout();
+        mainPanel.setLayout(layout);
+        GridBagConstraints gbc = new GridBagConstraints();
 
-        JPanel inPanel = genInputPanel();
-        int inWidth = 300;
-        int inHeight = 70;
-        inPanel.setMaximumSize(new Dimension(inWidth, inHeight));
-        inPanel.setPreferredSize(new Dimension(inWidth, inHeight));
+        text = new JTextField(20);
+
+        JPanel btnPanel = new JPanel();
+        buttons = new JButton[2];
+        buttons[0] = new JButton("検索");
+        buttons[1] = new JButton("追加");
+        for (int i = 0; i < buttons.length; i++) {
+            buttons[i].addActionListener(this);
+            btnPanel.add(buttons[i]);
+        }
 
         sModel = new DefaultListModel();
         searchPanel = new JList(sModel);
         JScrollPane searchSp = new JScrollPane();
-        searchSp.getViewport().setView(listPanel);
-        // searchSp.setMaximumSize(new Dimension(inWidth, mainHeight - inHeight));
-        // searchSp.setPreferredSize(new Dimension(inWidth, mainHeight - inHeight));
+        searchSp.getViewport().setView(searchPanel);
+        searchSp.setPreferredSize(new Dimension(200, 300));
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        layout.setConstraints(text, gbc);
+
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        layout.setConstraints(btnPanel, gbc);
+
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        layout.setConstraints(searchSp, gbc);
+
+        delButton = new JButton("削除");
+        delButton.addActionListener(this);
 
         lModel = new DefaultListModel();
         listPanel = new JList(lModel);
         JScrollPane listSp = new JScrollPane();
         listSp.getViewport().setView(listPanel);
-        // listSp.setMaximumSize(new Dimension(appWidth - mainWidth, appHeight));
-        // inPanel.setPreferredSize(new Dimension(appWidth - mainWidth, appHeight));
+        listSp.setPreferredSize(new Dimension(400, 350));
 
-        mainPanel.add(inPanel);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        gbc.gridheight = 3;
+        layout.setConstraints(listSp, gbc);
+
+        gbc.gridy = 3;
+        gbc.gridheight = 1;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        layout.setConstraints(delButton, gbc);
+
+        mainPanel.add(text);
+        mainPanel.add(btnPanel);
         mainPanel.add(searchSp);
+        mainPanel.add(listSp);
+        mainPanel.add(delButton);
 
         Container contentPane = getContentPane();
-        contentPane.add(mainPanel);
-        contentPane.add(listSp);
-    }
-
-    JPanel genInputPanel() {
-        text = new JTextField(20);
-        JPanel p = new JPanel();
-
-        JPanel btnPanel = new JPanel();
-        buttons = new JButton[3];
-        buttons[0] = new JButton("検索");
-        buttons[1] = new JButton("追加");
-        buttons[2] = new JButton("削除");
-        for (int i = 0; i < buttons.length; i++) {
-            buttons[i].addActionListener(this);
-            btnPanel.add(buttons[i]);
-        }
-        p.add(text);
-        p.add(btnPanel);
-        return p;
+        contentPane.add(mainPanel, BorderLayout.CENTER);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -104,6 +102,7 @@ public class UnifyGUI extends JFrame implements ActionListener {
 
         if (cmd.equals("検索")) {
             presenter.searchData(arg);
+            sModel.clear();
             searchList = view.getSr();
             for (String text : searchList) {
                 sModel.addElement(text);
@@ -121,7 +120,7 @@ public class UnifyGUI extends JFrame implements ActionListener {
         } else if (cmd.equals("削除")) {
             if (!listPanel.isSelectionEmpty()) {
                 int index = listPanel.getSelectedIndex();
-                TextModel val = (TextModel)listPanel.getSelectedValue();
+                TextModel val = (TextModel) listPanel.getSelectedValue();
                 presenter.deleteData(val.getUUID());
                 lModel.remove(index);
             } else {

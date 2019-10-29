@@ -1,4 +1,3 @@
-package Work2ver2;
 import java.util.List;
 
 interface ViewInterface {
