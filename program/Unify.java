@@ -1,4 +1,4 @@
-/***
+﻿/***
 Unify Program written
 
 
@@ -351,11 +351,11 @@ class Unifier {
        * List<String>に変更しないといけない
        */
       for(int i = 0; i < KeyList.size(); i++) {
-    	  for(int j = 0; j < (vars.get(KeyList.get(i))).size(); j++) {
+    	  //for(int j = 0; j < (vars.get(KeyList.get(i))).size(); j++) {
     		  //System.out.println("vars.get("+i+").get("+j+") = " + vars.get(KeyList.get(i)).get(j));
-    		  lastMessage.add(vars.get(KeyList.get(i)).get(j));
-    	  }
-    	  lastMessage.add(",");
+    		  lastMessage.add(KeyList.get(i)+"="+vars.get(KeyList.get(i))+"");
+    	  //}
+    	  //lastMessage.add(",");
       }
 
       System.out.println("lastMessage = " + lastMessage.toString());
