@@ -199,15 +199,12 @@ for(int num = 0; num < args.size(); num++) {
     flag = 0; //falgのリセット
 \end{lstlisting}
 
-これはTextの文字列がすべて読み込めたら行われる
-2次元リストを作るためには, 1次元のリストをリストに格納する処理を行うが, その際, Keyの数に応じて, 複製するリストの数も変わってくる. リストの名前には, 配列のbuffer[i]のように数字を名前に付け加えることができないため, ループ処理を行うこのプログラム中では, とりあえず, リストを作成するが, 
+ここの処理はTextの全ての行が読み込めたら行われる. 2次元リストを作るためには, リストに格納する処理を行うが, その際, Keyの数(?xだけなら1つ, ?xと?yなら2つなど）に応じて, 複製するValueのリストの数も変わってくる. リストの名前には, 配列のbuffer[i]のように数字を名前に付け加えることができないため, ループ処理を行うこのプログラム中では, とりあえず, リストを作成するが, すでにあるKeyに対してリストが存在していれば, ダブってしまうので, 削除する. このとき, javaではリストのオブジェクトも参照渡しであるので, ただ消すだけでは, 参照先を前のリストに戻すことができない. そのために, 前のリストをコピーしておき, 消した際には, コピーもとを参照させる.\\\\\\
 
 \begin{lstlisting}[caption=複数候補に対応したvarMatchingメソッド,label=src:No4]
 boolean varMatching(String vartoken,String token){
-	  /* (注意)
-	   * すでに?x=Taroという制約がある状態で,さらに?x=Jiroを付け加えないといけない.
-	   * うやむやにやっても,かぶっている候補を増やしてしまうだけである.
-	   */
+  /* (注意)
+    * すでに?x=Taroという制約がある状態で,さらに?x=Jiroを付け加えないといけない. うやむやにやっても,かぶっている候補を増やしてしまうだけである. */
  //すでにあるKeyに対して...
     //HashMapにvartokenというキー(Not値)が存在するかどうか
     if(vars.containsKey(vartoken)){
@@ -218,7 +215,6 @@ boolean varMatching(String vartoken,String token){
       		  ValueList.add(token);
       		  keyList.add(vartoken);
     	  }
-
     	  //普段はこっちだよね
     	  else {
     	  	for(int i = 0; i < varslist.size(); i++) {
@@ -252,17 +248,34 @@ boolean varMatching(String vartoken,String token){
 }
 \end{lstlisting}
 
-
+上記は, 実際に1(トークン)単語単位でマッチングを行うvarMatchingメソッドである. ValueListとkeyListは, テキストの1行ずつで初期化されるようになっており, ここのメソッド内でしかこの2つのリストは操作されない. この1行単位で初期化されるリストの結果は, 全体に反映されるリストvarslistに別のメソッドで格納されるので, それをもとにif文の条件分岐を行っている.
 
 \section{実行例}
-Fibonacciクラスに引数5を指定した実行結果を以下に示す。
-
+引数に["?x is a boy, ?x loves ?y"]としたときの実行結果が以下のようになる.
 \begin{lstlisting}
-clf1XXXX@cse:~/eclipse-workspace/Fibo > java Fibonacci 5
-8
+Successfully started
+検索結果を取得
+★answer = ?x0 = Taro
+★answer = ?y0 = Jiro
+★answer = ?x1 = Jiro
+★answer = ?y1 = Hanako
 \end{lstlisting}
 
-今回は0, 1番目のフィボナッチ数を1としたため、calcFibo() の引数に5を与えた時は8となるのが正しい動作である。これは、・・・
+?xには, Taro, Jiroが入り, その後, 2つ目の引数は「Taro loves ?y」, 「Jiro loves ?y」と置き換えられ, ?yはJiro, Hanakoが入る. 出力結果を, それぞれのxとyに対応させるために, ハッシュマップから, KeyとValueのfor文を回している.
+
+正しい関係性が出力されていることが確認される.
+
+同様に, ["?x is a student, ?x studies ?y"]と実行すると,
+\begin{lstlisting}
+Successfully started
+検索結果を取得
+★answer = ?x0 = Hanako
+★answer = ?y0 = philosophy
+★answer = ?x1 = Taro
+★answer = ?y1 = informatics
+\end{lstlisting}
+と出力されることが確認された.
+
 
 \section{考察}
 6に関して, 1つ目の引数で束縛された変数の値を, 実際に2つ目の引数に代入するので, もし「?x loves ?y」と「?x is a boy」という順番の引数の組み合わせだと最終的に間違ったハッシュマップが生じる. というのも, 「?x loves ?y」にあたる?xは[Hanako, Taro, Jiro]であるので, ハッシュマップその組み合わせが登録されるが, 「Hanako is a girl」なので, ミスが生じるが既にハッシュマップに登録されているので間違った出力となる.
