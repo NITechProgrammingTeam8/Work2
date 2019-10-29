@@ -1,5 +1,4 @@
-﻿//package Work2ver2;
-/***
+﻿/***
 Unify Program written
 
 
