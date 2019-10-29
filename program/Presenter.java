@@ -9,14 +9,12 @@ class Presenter {
 
     private Dao dao = new Dao();
     private TextCon textCon = new TextCon();
-    private Unify unify = new Unify();
+    //private Unify unify = new Unify();
     //private Matcher matching = new Matcher();
     private ViewInterface view;
-    Matcher matching2;
 
     public Presenter(ViewInterface view) {
         this.view = view;
-        matching2 = new Matcher();
     }
 
     // GUI起動時にTextDAOに対してテキストファイルからデータベースへの読み込みを指示する
@@ -68,45 +66,43 @@ class Presenter {
     // あおしゅー：データ検索のアクションを受け取ったとき、このメソッドを呼んでください
     public void searchData(String targetData) { // 複数の質問文は,区切りで与える
         List<TextModel> resultList;
-        List<String> ValueList = new ArrayList<String>(); //【DBからlineしか取らない
+        List<String> valueList = new ArrayList<String>(); //【DBからlineしか取らない
+        List<String> resultStringList = new ArrayList<String>();  //String型
 
         try {
             resultList = dao.FetchData();
             String[] target = targetData.split(",", 0);
+
             if(resultList.size() == 0) {
                 view.showNoData();
-            } else if (target.length == 1) {
+            } else if (target.length == 1) {	//分割されてないなら,
             	System.out.println("targetData1 = " + targetData);
             	for (int i = 0; i < resultList.size(); i++) {
             		//System.out.println("☆" + (new Matcher()).matching(targetData,resultList.get(i).getTEXT()));
             		String ans = (new Matcher()).matching(targetData,resultList.get(i).getTEXT());
             		if (ans != " ") {
-            			ValueList.add(ans);
+            			valueList.add(ans);
             		}
             	}
-            	/*
-            	for (TextModel textModel : resultList) {
-            		System.out.println("☆" + matching.matching(targetData,textModel.getTEXT()));
-            		if (matching.matching(targetData,textModel.getTEXT()) != " ") {
-            			ValueList.add(textModel.getTEXT());
-            		}
-            	}
-            	*/
 
-            } else {
+            } else {	//分割されているから,
+            	for(int i=0; i<resultList.size(); i++)
+            		resultStringList.add(resultList.get(i).getTEXT());
             	// Unifyメソッドをここで呼ぶ
-            	for (TextModel text : resultList) {
-                    System.out.println("???" + text);
-                    ValueList.add(matching2.matching(targetData, text.getTEXT()));
-                    System.out.println(matching2.matching(targetData, text.getTEXT()));
-               }
+            	valueList =  (new Unifier()).unify(target[0], target[1], resultStringList);
+
+            	//for (TextModel text : resultList) {
+                //    System.out.println("???" + text);
+                //    ValueList.add(matching2.matching(targetData, text.getTEXT()));
+                //    System.out.println(matching2.matching(targetData, text.getTEXT()));
+               //}
             }
 
-            System.out.println("size = " + ValueList.size());
-            for (int i = 0; i < ValueList.size(); i++) {
-            	System.out.println(ValueList.get(i));
-            }
-            view.showSearchResult(ValueList);
+            //System.out.println("size = " + valueList.size());
+            //for (int i = 0; i < valueList.size(); i++) {
+            //	System.out.println(valueList.get(i));
+            //}
+            view.showSearchResult(valueList);
 
         } catch(SQLException e) {
             view.showError(e.toString());
