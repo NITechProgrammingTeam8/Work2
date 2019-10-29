@@ -2,7 +2,6 @@ Hanako is a girl
 Hanako is a student
 student is a kind of human
 human is a kind of mammal
-Hanako has a hobby of playing video-games
 Hanako has a hobby of playing air-guitar
 Hanako studies philosophy
 Hanako loves Taro
