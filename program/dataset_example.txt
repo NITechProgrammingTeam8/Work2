@@ -2,6 +2,7 @@ Hanako is a girl
 Hanako is a student
 student is a kind of human
 human is a kind of mammal
+Hanako has a hobby of playing video-games
 Hanako has a hobby of playing air-guitar
 Hanako studies philosophy
 Hanako loves Taro
@@ -15,4 +16,4 @@ Jiro is a boy
 Jiro is a dog
 dog is a kind of mammal
 Jiro has a hobby of playing frisbee
-Shuhei is a boy
+Jiro loves Hanako
