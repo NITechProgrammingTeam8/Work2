@@ -1,4 +1,4 @@
-package Work2ver2;
+﻿//package Work2ver2;
 /***
 Unify Program written
 
@@ -43,10 +43,6 @@ Unify は，ユニフィケーション照合アルゴリズムを実現し，
 
 ***/
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -59,11 +55,35 @@ class Unify {
 	 * (?x, ?y) の全ての可能な変数束縛の集合として,
 	 * {(Taro, Jiro), (Jiro, Hanako)}を返すこと．
 	 */
-	System.out.println((new Unifier()).unify(arg[0],arg[1]));
+	//System.out.println((new Unifier()).unify(arg[0],arg[1]));
+	  if(arg.length != 2){
+		    System.out.println("Usgae : % Matching [string1]");
+		}
+
+		List<String> answer = new ArrayList<String>(); // 答えを格納
+
+		View view = new View(); // インスタンス？の作成
+		Presenter presenter = new Presenter(view);
+
+		presenter.start(); // DBの作成
+
+		presenter.searchData(arg[0]); // 検索語入力
+		answer = view.getSr(); // 答えを取得
+
+		//answer.add((new Matcher()).matching(arg[0],line));//ここでarg[0]引数1, arg[1]に引数2
+
+		//テスト出力用
+		for(int i = 0; i < answer.size(); i++) {
+			if(answer.get(i) != " ") {
+				System.out.println("★answer = " + answer.get(i));
+			}
+
+		}
 
 	  //Unifier un = new Unifier();
 	  //un.unify(arg[0], arg[1]);
 
+	  //?x is a boy, ?x loves ?y
   }
 }
 
@@ -88,6 +108,8 @@ class Unifier {
   ArrayList<String> numH;
   ArrayList<String> arrayCopy;
   int flag2;
+  List<String> lastMessage;
+
   //コンストラクタ
   Unifier(){
 	  System.out.println("コンストラクタ1に入りました");
@@ -99,16 +121,18 @@ class Unifier {
       valueName = 0;
       arrayCopy = null;
       flag2 = 0;
+      lastMessage = new ArrayList<String>();
   }
 
+  /*
   //コンストラクタ   ← 使ってないけどね...
   public boolean unify(String string1,String string2,HashMap<String,List<String>> bindings){
       System.out.println("コンストラクタ2に入りました");
 	  this.vars = bindings;
       return unify(string1,string2);
   }
-
-  public boolean unify(String string1,String string2){
+  */
+  public List<String> unify(String string1,String string2, List<String> textName ){
 
     //2回も同じ処理するの嫌だから配列にしてループさせます.
     ArrayList<String> args = new ArrayList<String>();
@@ -136,11 +160,6 @@ class Unifier {
     	}
     }
     System.out.println("変数の数 = " + numH.size());
-
-    //とりあえずデバック用
-    for(int i = 0; i < args.size(); i++)
-        System.out.println("args[" + i + "] = " + args.get(i));
-
 
     //1つ目の引数,2つ目の引数,順番に処理するよ！
     for(int num = 0; num < args.size(); num++) {
@@ -184,27 +203,28 @@ class Unifier {
        */
 
 	  /*text読み込み*/
-	  try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
-		  String fileName = "dataset.txt"; // ファイル名指定
+//	  try {    // ファイル読み込みに失敗した時の例外処理のためのtry-catch構文
+//		  String fileName = "dataset.txt"; // ファイル名指定
 		  //String fileName = "dataset_example.txt";
 
-		  // 文字コードUTF-8を指定してBufferedReaderオブジェクトを作る
-		  BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
+//		  // 文字コードUTF-8を指定してBufferedReaderオブジェクトを作る
+//		  BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
 
 		  // 変数lineに1行ずつ読み込むfor文
-		  for (String line = in.readLine(); line != null; line = in.readLine()) {
-
-			  System.out.println("line = " + line);
+//		  for (String line = in.readLine(); line != null; line = in.readLine()) {
+      	  for(int textNum = 0; textNum < textName.size(); textNum++) {
+			  System.out.println("line = " + textName.get(textNum));
+			  System.out.println("textName.size() = " + textName.size());
 			  /************ここからは通常の処理内容****************/
 		      // 同じなら成功
-		      if(args.get(num).equals(line)) {
+		      if(args.get(num).equals(textName.get(textNum))) {
 		    	  //return true;	//ここは帰らずに,データを保存してほしんだけど...
 		    	  //ここfor文全体を囲めば,いいな!! 今回,どうでもいいし!
 		      }
 
 		      // 各々トークンに分ける
 		      st1 = new StringTokenizer(args.get(num)); //ふつうの引数で
-		      st2 = new StringTokenizer(line);  //ここはふつうにデータセットの内容
+		      st2 = new StringTokenizer(textName.get(textNum));  //ここはふつうにデータセットの内容
 
 		      // 数が異なったら失敗
 		      if(st1.countTokens() != st2.countTokens()) {
@@ -317,23 +337,35 @@ class Unifier {
 	          flag = 0; //falgのリセット
 		      /***********************************************/
 		  }
-		  in.close();  // ファイルを閉じる
-	  } catch (IOException e) {
-      e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
-	  }
+//		  in.close();  // ファイルを閉じる
+//	  } catch (IOException e) {
+//      e.printStackTrace(); // 例外が発生した所までのスタックトレースを表示
+//	  }
 
 	  System.out.println(num+1 + "つ目の結果は"+vars.toString()+"\n");
       } //←引数2つループ用
       // 最後まで O.K. なら成功
       System.out.println("最終結果は"+vars.toString());
 
+      /*
+       * HashMap<String,List<String>> vars これを,
+       * List<String>に変更しないといけない
+       */
+      for(int i = 0; i < KeyList.size(); i++) {
+    	  for(int j = 0; j < (vars.get(KeyList.get(i))).size(); j++) {
+    		  //System.out.println("vars.get("+i+").get("+j+") = " + vars.get(KeyList.get(i)).get(j));
+    		  lastMessage.add(vars.get(KeyList.get(i)).get(j));
+    	  }
+    	  lastMessage.add(",");
+      }
 
+      System.out.println("lastMessage = " + lastMessage.toString());
       //HashMapのメソッド↓
       //https://docs.oracle.com/javase/jp/8/docs/api/java/util/HashMap.html
       //System.out.println("Key:?xに該当する値:Value = " + vars.get("?x"));
       //System.out.println("Key:?yに該当する値:Value = " + vars.get("?y"));
 
-      return true;
+      return lastMessage;
   }
 
   boolean tokenMatching(String token1,String token2){
